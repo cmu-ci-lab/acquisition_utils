@@ -2,9 +2,7 @@
 #define __DEBUG__
 */
 
-//#include "nuancefx.h"
-#include "mex.h"
-#include "matrix.h"
+#include "nuancefx_mex.h"
 
 #include <iostream>
 #include <cstring>
