@@ -20,8 +20,8 @@ namespace nuance {
 typedef enum {
 	CAMERA_NAME = 0,
 	CAMERA_SERIAL = 1,
-	CAMERA_DRIVERREVISION = 2,
-	CAMERA_FIRMWAREREVISION = 3,
+	CAMERA_DRIVER = 2,
+	CAMERA_FIRMWARE = 3,
 	CAMERA_SENSOR = 4,
 	CAMERA_SENSORSIZE = 5,
 	CAMERA_IMAGESIZE = 6,
@@ -37,60 +37,16 @@ typedef enum {
 //	CAMERA_COOLERSTATUS,
 //	CAMERA_TEMPERATURE,
 //	CAMERA_ROI = 16,
+	CAMERA_PROPERTY_LENGTH = 16,
 	CAMERA_INVALID = -1
 } CAMERA_PROPERTY;
 
 typedef enum {
 	FILTER_RANGE = 0,
 	FILTER_WAVELENGTH = 1,
+	FILTER_PROPERTY_LENGTH = 2,
 	FILTER_INVALID = -1
 } FILTER_PROPERTY;
-
-inline void getCameraProperty(const cri_CameraHandle handle, \
-							const char* propertyName, \
-							mxArray* mxarr) {
-
-	cri_ErrorCode errorCode;
-	if(!strcasecmp(propertyName, "bitdepth")) {
-		errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "gain")) {
-		errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "exposure")) {
-		errorCode = cri_SetCameraExposureMs(handle, (float) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "binning")) {
-		errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "offset")) {
-		errorCode = cri_SetCameraOffset(handle, (int) mxGetScalar(mxarr));
-	} else {
-		mexErrMsgTxt("Unknown or unsupported camera property.");
-	}
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
-	}
-}
-
-inline void setCameraProperty(const cri_CameraHandle handle, \
-							const char* propertyName, \
-							const mxArray* mxarr) {
-
-	cri_ErrorCode errorCode;
-	if(!strcasecmp(propertyName, "bitdepth")) {
-		errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "gain")) {
-		errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "exposure")) {
-		errorCode = cri_SetCameraExposureMs(handle, (float) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "binning")) {
-		errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) mxGetScalar(mxarr));
-	} else if(!strcasecmp(propertyName, "offset")) {
-		errorCode = cri_SetCameraOffset(handle, (int) mxGetScalar(mxarr));
-	} else {
-		mexErrMsgTxt("Unknown or unsupported camera property.");
-	}
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
-	}
-}
 
 inline void handleErrorCode(const cri_ErrorCode errorCode) {
 
@@ -208,12 +164,47 @@ inline void handleErrorCode(const cri_ErrorCode errorCode) {
 	}
 }
 
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraBinning(cri_CameraHandle handle, cri_ECameraBinning* binning);
+inline void cameraPropertyToString(const CAMERA_PROPERTY property, char *propertyName) {
 
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraBitDepth(cri_CameraHandle handle, cri_ECameraBitDepth* depth);
+	switch (property) {
+		case CAMERA_NAME: { strcpy(propertyName, "name"); }
+		case CAMERA_SERIAL: { strcpy(propertyName, "serial"); }
+		case CAMERA_DRIVER: { strcpy(propertyName, "driver"); }
+		case CAMERA_FIRMWARE: { strcpy(propertyName, "firmware"); }
+		case CAMERA_SENSOR: { strcpy(propertyName, "sensor"); }
+		case CAMERA_SENSORSIZE: { strcpy(propertyName, "sensorsize"); }
+		case CAMERA_IMAGESIZE: { strcpy(propertyName, "imagesize"); }
+		case CAMERA_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); }
+		case CAMERA_BITDEPTH: { strcpy(propertyName, "bitdepth"); }
+		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); }
+		case CAMERA_GAIN: { strcpy(propertyName, "gain"); }
+		case CAMERA_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); }
+		case CAMERA_EXPOSURE: { strcpy(propertyName, "exposure"); }
+		case CAMERA_BINNING: { strcpy(propertyName, "binning"); }
+		case CAMERA_OFFSETRANGE: { strcpy(propertyName, "offsetrange"); }
+		case CAMERA_OFFSET: { strcpy(propertyName, "offset"); }
+		default: { strcpy(propertyName, "unknown"); }
+	}
+}
 
+inline void filterPropertyToString(const FILTER_PROPERTY property, char *propertyName) {
+
+	switch (property) {
+		case FILTER_RANGE: { strcpy(propertyName, "range"); }
+		case FILTER_WAVELENGTH: { strcpy(propertyName, "wavelength"); }
+		default: { strcpy(propertyName, "unknown"); }
+	}
+}
+
+void setCameraProperty(const cri_CameraHandle handle, \
+					const char* propertyName, \
+					const mxArray* mxarr);
+
+void getCameraProperty(const cri_CameraHandle handle, \
+					const char* propertyName, \
+					mxArray* mxarr);
+
+void getCameraProperties(const cri_CameraHandle handle, mxArray* mxarr);
 
 CRI_MSI_API cri_ErrorCode
 cri_GetCurrentCameraSettings(cri_CameraHandle handle, int* width, int* height,
@@ -224,66 +215,6 @@ cri_GetCameraDescription(cri_CameraHandle handle, char* name, char* serialNumber
 						char* sensor, cri_ECameraBitDepth* maxBitDepth,
 						int* sensorWidth, int* sensorHeight,
 						char* driverRevision, char* firmwareRevision);
-
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraImageSize(cri_CameraHandle handle, int* width, int* height);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraGainRange(cri_CameraHandle handle, int* lowRange, int* highRange);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraGain(cri_CameraHandle handle, cri_ECameraGain* gain);
-
-
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraExposureRangeMs(cri_CameraHandle handle, float* lowRange, \
-							float* highRange);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraExposureMs(cri_CameraHandle handle, float* exposureMs);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraCoolerEnabled(cri_CameraHandle handle, bool* enabled);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraTemperature(cri_CameraHandle handle, float* temperatureC);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraSensorSize(cri_CameraHandle handle, int* width, int* height);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraDescription(cri_CameraHandle handle, char* name, \
-						char* serialNumber, char* sensor, \
-						cri_ECameraBitDepth* maxBitDepth, int* sensorWidth, \
-						int* sensorHeight, char* driverRevision, \
-						char* firmwareRevision);
-//
-//  Offset settings.
-//
-//
-//  Camera offset ranges can either be defined by a low to high range
-//  (step size of 1) or varied.  The below range interfaces will only return
-//  ranges as defined by the function name.
-//
-//  The function cri_GetCameraOffsetRange() will return low and high range
-//  values if the range has a step size of 1.
-//
-//  The function cri_GetCameraOffsetSparseRange() will return a range with
-//  values that do not necessarily have a step size of 1.
-//
-//  The error code cri_NoError can be used to determine if the range function
-//  provides the values.  Otherwise the erorr code cri_DataUnavailable will be
-//  returned.
-//
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraOffsetRange(cri_CameraHandle handle,
-                         int* lowRange,
-                         int* highRange);
-
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraOffset(cri_CameraHandle handle, int* cameraOffset);
 
 cri_CameraHandle m_CameraHandle = -1;
 cri_FilterHandle m_FilterHandle = -1;
