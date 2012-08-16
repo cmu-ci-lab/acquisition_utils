@@ -1,6 +1,6 @@
 /*** INCLUDE FILES ***/
 
-#include "nuancefx.h"
+#include "nuancefx_mex.h"
 
 #include <iostream>
 #include <cstring>
