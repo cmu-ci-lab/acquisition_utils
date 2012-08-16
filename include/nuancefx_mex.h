@@ -46,6 +46,29 @@ typedef enum {
 	FILTER_INVALID = -1
 } FILTER_PROPERTY;
 
+inline void getCameraProperty(const cri_CameraHandle handle, \
+							const char* propertyName, \
+							mxArray* mxarr) {
+
+	cri_ErrorCode errorCode;
+	if(!strcasecmp(propertyName, "bitdepth")) {
+		errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) mxGetScalar(mxarr));
+	} else if(!strcasecmp(propertyName, "gain")) {
+		errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) mxGetScalar(mxarr));
+	} else if(!strcasecmp(propertyName, "exposure")) {
+		errorCode = cri_SetCameraExposureMs(handle, (float) mxGetScalar(mxarr));
+	} else if(!strcasecmp(propertyName, "binning")) {
+		errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) mxGetScalar(mxarr));
+	} else if(!strcasecmp(propertyName, "offset")) {
+		errorCode = cri_SetCameraOffset(handle, (int) mxGetScalar(mxarr));
+	} else {
+		mexErrMsgTxt("Unknown or unsupported camera property.");
+	}
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+}
+
 inline void setCameraProperty(const cri_CameraHandle handle, \
 							const char* propertyName, \
 							const mxArray* mxarr) {
@@ -64,9 +87,7 @@ inline void setCameraProperty(const cri_CameraHandle handle, \
 	} else {
 		mexErrMsgTxt("Unknown or unsupported camera property.");
 	}
-	if (errorCode == cri_NoError) {
-		return;
-	} else {
+	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
 	}
 }
