@@ -8,30 +8,6 @@
 
 namespace nuance {
 
-void setCameraProperty(const cri_CameraHandle handle, \
-							const char* propertyName, \
-							const mxArray* mxarr) {
-
-	cri_ErrorCode errorCode;
-	double val = mxGetScalar(mxarr);
-	if(!strcasecmp(propertyName, "bitdepth")) {
-		errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) val);
-	} else if(!strcasecmp(propertyName, "gain")) {
-		errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) val);
-	} else if(!strcasecmp(propertyName, "exposure")) {
-		errorCode = cri_SetCameraExposureMs(handle, (float) val);
-	} else if(!strcasecmp(propertyName, "binning")) {
-		errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) val);
-	} else if(!strcasecmp(propertyName, "offset")) {
-		errorCode = cri_SetCameraOffset(handle, (int) val);
-	} else {
-		mexErrMsgTxt("Unknown or unsupported camera property.");
-	}
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
-	}
-}
-
 void getCameraProperty(const cri_CameraHandle handle, \
 							const char* propertyName, \
 							mxArray* mxarr) {
@@ -176,6 +152,7 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_GetCameraOffset(handle, &offset);
 		mxarr = mxCreateDoubleScalar((double) offset);
 	} else {
+		errorCode = cri_NoError;
 		mexErrMsgTxt("Unknown or unsupported camera property.");
 	}
 	if (errorCode != cri_NoError) {
@@ -187,28 +164,53 @@ void getCameraProperties(const cri_CameraHandle handle, mxArray* mxstruct) {
 
 	char **propertyNames = (char **) \
 			mxMalloc((size_t) CAMERA_PROPERTY_LENGTH * sizeof(*propertyNames));
-	for (CAMERA_PROPERTY iterProperty = 0; iterProperty < CAMERA_PROPERTY_LENGTH; ++iterProperty) {
+	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
 		propertyNames[iterProperty] = (char *) mxMalloc(cri_MAX_STRING_LENGTH * sizeof(char));
-		cameraPropertyToString(iterProperty, propertyNames[iterProperty]);
+		cameraPropertyToString((CAMERA_PROPERTY) iterProperty, propertyNames[iterProperty]);
 	}
-	mxstruct = mxCreateStructMatrix(1, 1, (int) CAMERA_PROPERTY_LENGTH, (const char **) propertyNames);
-	mxArray *temp;
-	for (CAMERA_PROPERTY iterProperty = 0; iterProperty < CAMERA_PROPERTY_LENGTH; ++iterProperty) {
+	mxstruct = mxCreateStructMatrix(1, 1, (unsigned) CAMERA_PROPERTY_LENGTH, (const char **) propertyNames);
+	mxArray *temp = NULL;
+	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
 		getCameraProperty(handle, propertyNames[iterProperty], temp);
 		mxSetFieldByNumber(mxstruct, 0, iterProperty, temp);
 	}
-	for (CAMERA_PROPERTY iterProperty = 0; iterProperty < CAMERA_PROPERTY_LENGTH; ++iterProperty) {
+	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
 		mxFree((void *) propertyNames[iterProperty]);
 	}
 	mxFree((void *) propertyNames);
 }
 
+void setCameraProperty(const cri_CameraHandle handle, \
+							const char* propertyName, \
+							const mxArray* mxarr) {
 
-void setCameraProperties(const cri_CameraHandle handle, const mxArray* mxstruct) {
+	cri_ErrorCode errorCode;
+	double val = mxGetScalar(mxarr);
+	if(!strcasecmp(propertyName, "bitdepth")) {
+		errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) val);
+	} else if(!strcasecmp(propertyName, "gain")) {
+		errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) val);
+	} else if(!strcasecmp(propertyName, "exposure")) {
+		errorCode = cri_SetCameraExposureMs(handle, (float) val);
+	} else if(!strcasecmp(propertyName, "binning")) {
+		errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) val);
+	} else if(!strcasecmp(propertyName, "offset")) {
+		errorCode = cri_SetCameraOffset(handle, (int) val);
+	} else {
+		errorCode = cri_NoError;
+		mexErrMsgTxt("Unknown or unsupported camera property.");
+	}
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+}
+
+void setCameraProperties(const cri_CameraHandle handle, \
+						const mxArray* mxstruct) {
 
 	if (mxIsStruct(mxstruct)) {
-		int numProperties = mxGetNumberOfFields(mxstruct);
-		for (int iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
+		unsigned numProperties = mxGetNumberOfFields(mxstruct);
+		for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
 			setCameraProperty(handle, mxGetFieldNameByNumber(mxstruct, iterProperty), \
 							mxGetFieldByNumber(mxstruct, 0, iterProperty));
 		}
@@ -217,6 +219,116 @@ void setCameraProperties(const cri_CameraHandle handle, const mxArray* mxstruct)
 	}
 }
 
+void getFilterProperty(const cri_FilterHandle handle, \
+							const char* propertyName, \
+							mxArray* mxarr) {
 
+	cri_ErrorCode errorCode;
+	if (!strcasecmp(propertyName, "serial")) {
+		int serial;
+		float lowWavelengthRange;
+		float highWavelengthRange;
+		int waveplateStages;
+		int firmware;
+		errorCode = cri_GetFilterDescription(handle, &serial, \
+										&lowWavelengthRange, &highWavelengthRange, \
+										&waveplateStages, &firmware);
+		mxarr = mxCreateDoubleScalar((double) serial);
+	} else if (!strcasecmp(propertyName, "firmware")) {
+		int serial;
+		float lowWavelengthRange;
+		float highWavelengthRange;
+		int waveplateStages;
+		int firmware;
+		errorCode = cri_GetFilterDescription(handle, &serial, \
+										&lowWavelengthRange, &highWavelengthRange, \
+										&waveplateStages, &firmware);
+		mxarr = mxCreateDoubleScalar((double) firmware);
+	} else if(!strcasecmp(propertyName, "range")) {
+		float lowWavelengthRange;
+		float highWavelengthRange;
+		float stepSize;
+		errorCode = cri_GetFilterRangeAndStepSize(handle, &lowWavelengthRange, \
+												&highWavelengthRange, &stepSize);
+		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(mxarr);
+		data[0] = (double) lowWavelengthRange;
+		data[1] = (double) highWavelengthRange;
+	} else if(!strcasecmp(propertyName, "stepsize")) {
+		float lowWavelengthRange;
+		float highWavelengthRange;
+		float stepSize;
+		errorCode = cri_GetFilterRangeAndStepSize(handle, &lowWavelengthRange, \
+												&highWavelengthRange, &stepSize);
+		mxarr = mxCreateDoubleScalar((double) stepSize);
+	} else if(!strcasecmp(propertyName, "wavelength")) {
+		cri_FilterState filterState;
+		filterState.reserved[0] = 0.0f;
+		filterState.reserved[1] = 0.0f;
+		errorCode = cri_GetFilterState(handle, &filterState);
+		mxarr = mxCreateDoubleScalar((double) filterState.wavelength);
+	} else {
+		errorCode = cri_NoError;
+		mexErrMsgTxt("Unknown or unsupported filter property.");
+	}
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+}
+
+void getFilterProperties(const cri_FilterHandle handle, mxArray* mxstruct) {
+
+	char **propertyNames = (char **) \
+			mxMalloc((size_t) FILTER_PROPERTY_LENGTH * sizeof(*propertyNames));
+	for (unsigned iterProperty = 0; iterProperty < (unsigned) FILTER_PROPERTY_LENGTH; ++iterProperty) {
+		propertyNames[iterProperty] = (char *) mxMalloc(cri_MAX_STRING_LENGTH * sizeof(char));
+		filterPropertyToString((FILTER_PROPERTY) iterProperty, propertyNames[iterProperty]);
+	}
+	mxstruct = mxCreateStructMatrix(1, 1, (unsigned) FILTER_PROPERTY_LENGTH, (const char **) propertyNames);
+	mxArray *temp = NULL;
+	for (unsigned iterProperty = 0; iterProperty < (unsigned) FILTER_PROPERTY_LENGTH; ++iterProperty) {
+		getFilterProperty(handle, propertyNames[iterProperty], temp);
+		mxSetFieldByNumber(mxstruct, 0, iterProperty, temp);
+	}
+	for (unsigned iterProperty = 0; iterProperty < (unsigned) FILTER_PROPERTY_LENGTH; ++iterProperty) {
+		mxFree((void *) propertyNames[iterProperty]);
+	}
+	mxFree((void *) propertyNames);
+}
+
+void setFilterProperty(const cri_FilterHandle handle, \
+							const char* propertyName, \
+							const mxArray* mxarr) {
+
+	cri_ErrorCode errorCode;
+	double val = mxGetScalar(mxarr);
+	if(!strcasecmp(propertyName, "wavelength")) {
+		cri_FilterState filterState;
+		filterState.wavelength = (double) val;
+		filterState.reserved[0] = 0.0f;
+		filterState.reserved[1] = 0.0f;
+		errorCode = cri_SetFilterState(handle, filterState, true);
+	} else {
+		errorCode = cri_NoError;
+		mexErrMsgTxt("Unknown or unsupported filter property.");
+	}
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+}
+
+void setFilterProperties(const cri_FilterHandle handle, \
+						const mxArray* mxstruct) {
+
+	if (mxIsStruct(mxstruct)) {
+		unsigned numProperties = mxGetNumberOfFields(mxstruct);
+		for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
+			setFilterProperty(handle, mxGetFieldNameByNumber(mxstruct, iterProperty), \
+							mxGetFieldByNumber(mxstruct, 0, iterProperty));
+		}
+	} else if (!mxIsEmpty(mxstruct)) {
+		mexErrMsgTxt("For setting multiple attributes, a struct array must be provided.");
+	}
+}
 
 }	/* namespace nuance */

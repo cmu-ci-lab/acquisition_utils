@@ -42,9 +42,12 @@ typedef enum {
 } CAMERA_PROPERTY;
 
 typedef enum {
-	FILTER_RANGE = 0,
-	FILTER_WAVELENGTH = 1,
-	FILTER_PROPERTY_LENGTH = 2,
+	FILTER_SERIAL = 0,
+	FILTER_FIRMWARE = 1,
+	FILTER_RANGE = 2,
+	FILTER_STEPSIZE = 3,
+	FILTER_WAVELENGTH = 4,
+	FILTER_PROPERTY_LENGTH = 5,
 	FILTER_INVALID = -1
 } FILTER_PROPERTY;
 
@@ -164,7 +167,8 @@ inline void handleErrorCode(const cri_ErrorCode errorCode) {
 	}
 }
 
-inline void cameraPropertyToString(const CAMERA_PROPERTY property, char *propertyName) {
+inline void cameraPropertyToString(const CAMERA_PROPERTY property, \
+								char *propertyName) {
 
 	switch (property) {
 		case CAMERA_NAME: { strcpy(propertyName, "name"); }
@@ -187,76 +191,85 @@ inline void cameraPropertyToString(const CAMERA_PROPERTY property, char *propert
 	}
 }
 
-inline void filterPropertyToString(const FILTER_PROPERTY property, char *propertyName) {
+inline void filterPropertyToString(const FILTER_PROPERTY property, \
+								char *propertyName) {
 
 	switch (property) {
+		case FILTER_SERIAL: { strcpy(propertyName, "serial"); }
+		case FILTER_FIRMWARE: { strcpy(propertyName, "firmware"); }
 		case FILTER_RANGE: { strcpy(propertyName, "range"); }
+		case FILTER_STEPSIZE: { strcpy(propertyName, "stepsize"); }
 		case FILTER_WAVELENGTH: { strcpy(propertyName, "wavelength"); }
 		default: { strcpy(propertyName, "unknown"); }
 	}
 }
 
-void setCameraProperty(const cri_CameraHandle handle, \
-					const char* propertyName, \
-					const mxArray* mxarr);
-
 void getCameraProperty(const cri_CameraHandle handle, \
 					const char* propertyName, \
 					mxArray* mxarr);
 
-void getCameraProperties(const cri_CameraHandle handle, mxArray* mxarr);
+void getCameraProperties(const cri_CameraHandle handle, \
+						mxArray* mxstruct);
 
-CRI_MSI_API cri_ErrorCode
-cri_GetCurrentCameraSettings(cri_CameraHandle handle, int* width, int* height,
-					cri_ECameraBitDepth* bitDepth, cri_ECameraBinning* binning);
+void setCameraProperty(const cri_CameraHandle handle, \
+					const char* propertyName, \
+					const mxArray* mxarr);
 
-CRI_MSI_API cri_ErrorCode
-cri_GetCameraDescription(cri_CameraHandle handle, char* name, char* serialNumber,
-						char* sensor, cri_ECameraBitDepth* maxBitDepth,
-						int* sensorWidth, int* sensorHeight,
-						char* driverRevision, char* firmwareRevision);
+void setCameraProperties(const cri_CameraHandle handle, \
+						const mxArray* mxstruct);
 
-cri_CameraHandle m_CameraHandle = -1;
-cri_FilterHandle m_FilterHandle = -1;
+void getFilterProperty(const cri_FilterHandle handle, \
+					const char* propertyName, \
+					mxArray* mxarr);
 
-int m_CameraImageStreamCount = 0;
+void getFilterProperties(const cri_FilterHandle handle, \
+						mxArray* mxstruct);
 
-const int ALLOWED_STREAM_COUNT = 8;
+void setFilterProperty(const cri_FilterHandle handle, \
+					const char* propertyName, \
+					const mxArray* mxarr);
 
-cri_Int8Image m_SnapImage;
-cri_Int8Image m_StreamImages[ALLOWED_STREAM_COUNT];
-cri_Int8Image m_AcquireCube;
+void setFilterProperties(const cri_FilterHandle handle, \
+						const mxArray* mxstruct);
 
-const int NUMBER_ACQUIRE_IMAGES = 11;
-const int CUBE_ACQUIRE_FRAMES_TO_AVERAGE = 1;
-const float DEFAULT_CUBE_ACQUIRE_EXPOSURE_MS = 100.0;
+//int m_CameraImageStreamCount = 0;
 
+//const int ALLOWED_STREAM_COUNT = 8;
 
-void StreamInt8Callback(cri_Int8Image image);
-void SnapInt8Callback(cri_Int8Image image);
-void AcquireCubeInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, cri_FilterState filterStates[],
-   float exposureTimesMs[],
-   unsigned int curImage,
-   unsigned int totalToAcquire,
-   unsigned int framesToAverage);
-void ErrorCallback(cri_ErrorCode errorCode);
-bool OpenCamera();
-bool OpenFilter();
-void DisplayErrorMessage();
-void DisplayCameraCharacteristics();
-void DisplayFilterCharacteristics();
-bool OpenDevices();
-void ShutdownDevices();
-void SetCameraBitDepthTo(cri_ECameraBitDepth depth);
-void SetCameraBinningTo(cri_ECameraBinning binning);
-void GetCameraImageSize(int * width, int * height);
-void SetDisplayCameraSettings();
-void WaitForCameraToBeReady();
-void GetAutoExposeParameters(cri_AutoExposeParameters * parameters);
-void AutoExposeForPlane();
-void AutoExposeForCube();
-void WaitForCubeAcquireToBeFinished();
-void AcquireCube();
+//cri_Int8Image m_SnapImage;
+//cri_Int8Image m_StreamImages[ALLOWED_STREAM_COUNT];
+//cri_Int8Image m_AcquireCube;
+//
+//const int NUMBER_ACQUIRE_IMAGES = 11;
+//const int CUBE_ACQUIRE_FRAMES_TO_AVERAGE = 1;
+//const float DEFAULT_CUBE_ACQUIRE_EXPOSURE_MS = 100.0;
+//
+//
+//void StreamInt8Callback(cri_Int8Image image);
+//void SnapInt8Callback(cri_Int8Image image);
+//void AcquireCubeInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, cri_FilterState filterStates[],
+//   float exposureTimesMs[],
+//   unsigned int curImage,
+//   unsigned int totalToAcquire,
+//   unsigned int framesToAverage);
+//void ErrorCallback(cri_ErrorCode errorCode);
+//bool OpenCamera();
+//bool OpenFilter();
+//void DisplayErrorMessage();
+//void DisplayCameraCharacteristics();
+//void DisplayFilterCharacteristics();
+//bool OpenDevices();
+//void ShutdownDevices();
+//void SetCameraBitDepthTo(cri_ECameraBitDepth depth);
+//void SetCameraBinningTo(cri_ECameraBinning binning);
+//void GetCameraImageSize(int * width, int * height);
+//void SetDisplayCameraSettings();
+//void WaitForCameraToBeReady();
+//void GetAutoExposeParameters(cri_AutoExposeParameters * parameters);
+//void AutoExposeForPlane();
+//void AutoExposeForCube();
+//void WaitForCubeAcquireToBeFinished();
+//void AcquireCube();
 
 }	/* namespace nuance */
 

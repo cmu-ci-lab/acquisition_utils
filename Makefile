@@ -19,16 +19,20 @@ MEXDIR = $(ROOTDIR)/mexfiles
 BINDIR = $(ROOTDIR)/bin
 INCLUDES += -I$(INCLUDEDIR)
 
-all: tests
+all: tests camera filter
 	
 tests: $(MEXDIR)/temp_mex.$(MEXEXT)
 
+camera: $(MEXDIR)/nuanceget.$(MEXEXT) $(MEXDIR)/nuanceset.$(MEXEXT)
+
+filter: $(MEXDIR)/filterget.$(MEXEXT) $(MEXDIR)/filterset.$(MEXEXT)
+
 ## test mex executable 
-$(MEXDIR)/temp_mex.$(MEXEXT): $(MEXDIR)/temp_mex.o 
+$(MEXDIR)/%.$(MEXEXT): $(MEXDIR)/%.o $(SRCDIR)/nuancefx_mex.o  
 	$(CC) $(LDFLAGS) -o $@ $^
 
 # mex object files
-$(MEXDIR)/%.o: $(MEXDIR)/%.cpp $(INCLUDEDIR)/nuancefx.h
+$(MEXDIR)/%.o: $(MEXDIR)/%.cpp $(INCLUDEDIR)/nuancefx_mex.h
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 	
 # src object files

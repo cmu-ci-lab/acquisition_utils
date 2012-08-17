@@ -5,7 +5,7 @@
  *      Author: igkiou
  */
 
-#include "openexr_mex.h"
+#include "nuancefx_mex.h"
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
@@ -21,27 +21,18 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		mexErrMsgTxt("Too many output arguments.");
 	}
 
-	if (!mxIsChar(prhs[0])) {
-		mexErrMsgTxt("First argument must be a string.");
-	}
-	const int lengthFileName = mxGetNumberOfElements(prhs[0]) + 1;
-	char* fileName = (char *) mxMalloc(lengthFileName * sizeof(char));
-	mxGetString(prhs[0], fileName, lengthFileName);
-	InputFile in(fileName);
-	Header head = in.header();
+	const cri_CameraHandle handle = (cri_CameraHandle) mxGetScalar(prhs[0]);
 
 	if (nrhs >= 2) {
 		if (!mxIsChar(prhs[1])) {
 			mexErrMsgTxt("Second argument must be a string.");
 		}
-		const int lengthAttributeName = mxGetNumberOfElements(prhs[1]) + 1;
-		char* attributeName = (char *) mxMalloc(lengthAttributeName * sizeof(char));
-		mxGetString(prhs[1], attributeName, lengthAttributeName);
-		plhs[0] = getSingleAttribute(head, attributeName);
-		mxFree(attributeName);
+		const int lengthPropertyName = mxGetNumberOfElements(prhs[1]) + 1;
+		char* propertyName = (char *) mxMalloc(lengthPropertyName * sizeof(char));
+		mxGetString(prhs[1], propertyName, lengthPropertyName);
+		nuance::getCameraProperty(handle, propertyName, plhs[0]);
+		mxFree(propertyName);
 	} else {
-		plhs[0] = getAllAttributes(head);
+		nuance::getCameraProperties(handle, plhs[0]);
 	}
-
-	mxFree(fileName);
 }
