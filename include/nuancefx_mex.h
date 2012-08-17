@@ -15,6 +15,8 @@
 #include "mex.h"
 #include "matrix.h"
 
+#define ERROR_ID "MATLAB:nuancefx_mex"
+
 namespace nuance {
 
 typedef enum {
@@ -67,112 +69,112 @@ inline void handleErrorCode(const cri_ErrorCode errorCode) {
 	switch(errorCode) {
 		case cri_IllegalParameter:
 		{
-			mexErrMsgTxt("Illegal parameter.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Illegal parameter.");
 			return;
 		}
 		case cri_ParameterOutOfRangeError:
 		{
-			mexErrMsgTxt("Parameter out of range.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Parameter out of range.");
 			return;
 		}
 		case cri_IllegalDataFormat:
 		{
-			mexErrMsgTxt("Illegal data format.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Illegal data format.");
 			return;
 		}
 		case cri_OperationUnavailableWhileCameraOpen:
 		{
-			mexErrMsgTxt("Operation unavailable while camera open.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Operation unavailable while camera open.");
 			return;
 		}
 		case cri_DataUnavailable:
 		{
-			mexErrMsgTxt("Data unavailable.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Data unavailable.");
 			return;
 		}
 		case cri_CameraNotOpen:
 		{
-			mexErrMsgTxt("Camera not open.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Camera not open.");
 			return;
 		}
 		case cri_CameraDeviceNotAvailable:
 		{
-			mexErrMsgTxt("Camera device not available.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Camera device not available.");
 			return;
 		}
 		case cri_IllegalCameraHandle:
 		{
-			mexErrMsgTxt("Illegal camera handle.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Illegal camera handle.");
 			return;
 		}
 		case cri_CameraHandleNoLongerOpen:
 		{
-			mexErrMsgTxt("Camera handle no longer open.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Camera handle no longer open.");
 			return;
 		}
 		case cri_CameraAlreadyStreaming:
 		{
-			mexErrMsgTxt("Camera already streaming.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Camera already streaming.");
 			return;
 		}
 		case cri_CameraNotStreaming:
 		{
-			mexErrMsgTxt("Camera not streaming.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Camera not streaming.");
 			return;
 		}
 		case cri_CameraStreamError:
 		{
-			mexErrMsgTxt("Camera stream error.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Camera stream error.");
 			return;
 		}
 		case cri_CameraBusy:
 		{
-			mexErrMsgTxt("Camera busy.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Camera busy.");
 			return;
 		}
 		case cri_InternalCameraError:
 		{
-			mexErrMsgTxt("Internal camera error.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Internal camera error.");
 			return;
 		}
 		case cri_InternalCameraQueryError:
 		{
-			mexErrMsgTxt("Internal camera query error.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Internal camera query error.");
 			return;
 		}
 		case cri_FilterNotOpen:
 		{
-			mexErrMsgTxt("Filter not open.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Filter not open.");
 			return;
 		}
 		case cri_FilterDeviceNotAvailable:
 		{
-			mexErrMsgTxt("Filter device not available.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Filter device not available.");
 			return;
 		}
 		case cri_IllegalFilterHandle:
 		{
-			mexErrMsgTxt("Illegal filter handle.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Illegal filter handle.");
 			return;
 		}
 		case cri_FilterHandleNoLongerOpen:
 		{
-			mexErrMsgTxt("Filter handle no longer open.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Filter handle no longer open.");
 			return;
 		}
 		case cri_InternalFilterError:
 		{
-			mexErrMsgTxt("Internal filter error.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Internal filter error.");
 			return;
 		}
 		case cri_InternalAcquireError:
 		{
-			mexErrMsgTxt("Internal acquire error.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Internal acquire error.");
 			return;
 		}
 		case cri_TransmissionError:
 		{
-			mexErrMsgTxt("Transmission error.");
+			mexErrMsgIdAndTxt(ERROR_ID, "Transmission error.");
 			return;
 		}
 	}

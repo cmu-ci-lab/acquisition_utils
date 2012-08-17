@@ -153,7 +153,7 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		mxarr = mxCreateDoubleScalar((double) offset);
 	} else {
 		errorCode = cri_NoError;
-		mexErrMsgTxt("Unknown or unsupported camera property.");
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported camera property: %s.", propertyName);
 	}
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
@@ -198,7 +198,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_SetCameraOffset(handle, (int) val);
 	} else {
 		errorCode = cri_NoError;
-		mexErrMsgTxt("Unknown or unsupported camera property.");
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported camera property: %s.", propertyName);
 	}
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
@@ -215,7 +215,7 @@ void setCameraProperties(const cri_CameraHandle handle, \
 							mxGetFieldByNumber(mxstruct, 0, iterProperty));
 		}
 	} else if (!mxIsEmpty(mxstruct)) {
-		mexErrMsgTxt("For setting multiple attributes, a struct array must be provided.");
+		mexErrMsgIdAndTxt(ERROR_ID, "For setting multiple attributes, a struct array must be provided.");
 	}
 }
 
@@ -269,7 +269,7 @@ void getFilterProperty(const cri_FilterHandle handle, \
 		mxarr = mxCreateDoubleScalar((double) filterState.wavelength);
 	} else {
 		errorCode = cri_NoError;
-		mexErrMsgTxt("Unknown or unsupported filter property.");
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported filter property: %s.", propertyName);
 	}
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
@@ -310,7 +310,7 @@ void setFilterProperty(const cri_FilterHandle handle, \
 		errorCode = cri_SetFilterState(handle, filterState, true);
 	} else {
 		errorCode = cri_NoError;
-		mexErrMsgTxt("Unknown or unsupported filter property.");
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported filter property: %s.", propertyName);
 	}
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
@@ -327,7 +327,7 @@ void setFilterProperties(const cri_FilterHandle handle, \
 							mxGetFieldByNumber(mxstruct, 0, iterProperty));
 		}
 	} else if (!mxIsEmpty(mxstruct)) {
-		mexErrMsgTxt("For setting multiple attributes, a struct array must be provided.");
+		mexErrMsgIdAndTxt(ERROR_ID, "For setting multiple attributes, a struct array must be provided.");
 	}
 }
 
@@ -341,7 +341,7 @@ cri_CameraHandle openCamera() {
 	if (numCameras > 1) {
 		mexWarnMsgTxt("Warning: more than one available cameras found. Multiple cameras are not well supported.");
 	} else if (numCameras < 0) {
-		mexErrMsgTxt("No available camera found.");
+		mexErrMsgIdAndTxt(ERROR_ID, "No available camera found.");
 		return cri_InvalidCameraHandle;
 	}
 	int *cameraIDs = new int[numCameras];
@@ -358,7 +358,7 @@ cri_CameraHandle openCamera() {
 		return handle;
 	} else {
 		delete [] cameraIDs;
-		mexErrMsgTxt("No available camera found.");
+		mexErrMsgIdAndTxt(ERROR_ID, "No available camera found.");
 		return -1;
 	}
 }
@@ -382,7 +382,7 @@ cri_FilterHandle openFilter() {
 	if (numFilters > 1) {
 		mexWarnMsgTxt("Warning: more than one available filters found. Multiple filters are not well supported.");
 	} else if (numFilters < 0) {
-		mexErrMsgTxt("No available filter found.");
+		mexErrMsgIdAndTxt(ERROR_ID, "No available filter found.");
 		return cri_InvalidFilterHandle;
 	}
 	int *filterIDs = new int[numFilters];
@@ -399,7 +399,7 @@ cri_FilterHandle openFilter() {
 		return handle;
 	} else {
 		delete [] filterIDs;
-		mexErrMsgTxt("No available filter found.");
+		mexErrMsgIdAndTxt(ERROR_ID, "No available filter found.");
 		return -1;
 	}
 }
