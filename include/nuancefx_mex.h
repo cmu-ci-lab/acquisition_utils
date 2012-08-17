@@ -29,14 +29,14 @@ typedef enum {
 	CAMERA_IMAGESIZE = 6,
 	CAMERA_MAXBITDEPTH = 7,
 	CAMERA_BITDEPTH = 8,
-	CAMERA_GAINRANGE = 9,
-	CAMERA_GAIN = 10,
-	CAMERA_EXPOSURERANGE = 11,
-	CAMERA_EXPOSURE = 12,
-	CAMERA_BINNING = 13,
-	CAMERA_OFFSETRANGE = 14,
-	CAMERA_OFFSET = 15,
-	CAMERA_PROPERTY_LENGTH = 16,
+//	CAMERA_GAINRANGE = 9,
+	CAMERA_GAIN = 9,
+	CAMERA_EXPOSURERANGE = 10,
+	CAMERA_EXPOSURE = 11,
+	CAMERA_BINNING = 12,
+	CAMERA_OFFSETRANGE = 13,
+	CAMERA_OFFSET = 14,
+	CAMERA_PROPERTY_LENGTH = 15,
 	CAMERA_PROPERTY_INVALID = -1
 } CAMERA_PROPERTY;
 
@@ -193,7 +193,7 @@ inline void cameraPropertyToString(const CAMERA_PROPERTY property, \
 		case CAMERA_IMAGESIZE: { strcpy(propertyName, "imagesize"); return; }
 		case CAMERA_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); return; }
 		case CAMERA_BITDEPTH: { strcpy(propertyName, "bitdepth"); return; }
-		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); return; }
+//		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); return; }
 		case CAMERA_GAIN: { strcpy(propertyName, "gain"); return; }
 		case CAMERA_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); return; }
 		case CAMERA_EXPOSURE: { strcpy(propertyName, "exposure"); return; }
@@ -219,12 +219,10 @@ inline void filterPropertyToString(const FILTER_PROPERTY property, \
 
 
 /* Camera getters and setters. */
-void getCameraProperty(const cri_CameraHandle handle, \
-					const char* propertyName, \
-					mxArray* mxarr);
+mxArray* getCameraProperty(const cri_CameraHandle handle, \
+					const char* propertyName);
 
-void getCameraProperties(const cri_CameraHandle handle, \
-						mxArray* mxstruct);
+mxArray* getCameraProperties(const cri_CameraHandle handle);
 
 void setCameraProperty(const cri_CameraHandle handle, \
 					const char* propertyName, \
@@ -234,12 +232,10 @@ void setCameraProperties(const cri_CameraHandle handle, \
 						const mxArray* mxstruct);
 
 /* Filter getters and setters. */
-void getFilterProperty(const cri_FilterHandle handle, \
-					const char* propertyName, \
-					mxArray* mxarr);
+mxArray* getFilterProperty(const cri_FilterHandle handle, \
+					const char* propertyName);
 
-void getFilterProperties(const cri_FilterHandle handle, \
-						mxArray* mxstruct);
+mxArray* getFilterProperties(const cri_FilterHandle handle);
 
 void setFilterProperty(const cri_FilterHandle handle, \
 					const char* propertyName, \

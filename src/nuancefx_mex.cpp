@@ -8,11 +8,9 @@
 
 namespace nuance {
 
-void getCameraProperty(const cri_CameraHandle handle, \
-							const char* propertyName, \
-							mxArray** mxarr) {
+mxArray* getCameraProperty(const cri_CameraHandle handle, \
+							const char* propertyName) {
 
-	cri_ErrorCode errorCode;
 	if (!strcasecmp(propertyName, "name")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -22,10 +20,14 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		int sensorHeight;
 		char driver[cri_MAX_STRING_LENGTH];
 		char firmware[cri_MAX_STRING_LENGTH];
-		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
+		cri_ErrorCode errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		*mxarr = mxCreateString(name);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateString(name);
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "serial")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -35,10 +37,14 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		int sensorHeight;
 		char driver[cri_MAX_STRING_LENGTH];
 		char firmware[cri_MAX_STRING_LENGTH];
-		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
+		cri_ErrorCode errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		*mxarr = mxCreateString(serial);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateString(serial);
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "driver")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -48,10 +54,14 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		int sensorHeight;
 		char driver[cri_MAX_STRING_LENGTH];
 		char firmware[cri_MAX_STRING_LENGTH];
-		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
+		cri_ErrorCode errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		*mxarr = mxCreateString(driver);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateString(driver);
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "firmware")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -61,10 +71,14 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		int sensorHeight;
 		char driver[cri_MAX_STRING_LENGTH];
 		char firmware[cri_MAX_STRING_LENGTH];
-		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
+		cri_ErrorCode errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		*mxarr = mxCreateString(firmware);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateString(firmware);
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "sensor")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -74,26 +88,38 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		int sensorHeight;
 		char driver[cri_MAX_STRING_LENGTH];
 		char firmware[cri_MAX_STRING_LENGTH];
-		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
+		cri_ErrorCode errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		*mxarr = mxCreateString(sensor);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateString(sensor);
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "sensorsize")) {
 		int width;
 		int height;
-		errorCode = cri_GetCameraSensorSize(handle, &width, &height);
-		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(*mxarr);
+		cri_ErrorCode errorCode = cri_GetCameraSensorSize(handle, &width, &height);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(mxarr);
 		data[0] = (double) width;
 		data[1] = (double) height;
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "imagesize")) {
 		int width;
 		int height;
-		errorCode = cri_GetCameraImageSize(handle, &width, &height);
-		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(*mxarr);
+		cri_ErrorCode errorCode = cri_GetCameraImageSize(handle, &width, &height);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(mxarr);
 		data[0] = (double) width;
 		data[1] = (double) height;
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "maxbitdepth")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -103,105 +129,145 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		int sensorHeight;
 		char driver[cri_MAX_STRING_LENGTH];
 		char firmware[cri_MAX_STRING_LENGTH];
-		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
+		cri_ErrorCode errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		*mxarr = mxCreateDoubleScalar((double) maxBitDepth);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) maxBitDepth);
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "bitdepth")) {
 		cri_ECameraBitDepth bitDepth;
-		errorCode = cri_GetCameraBitDepth(handle, &bitDepth);
-		*mxarr = mxCreateDoubleScalar((double) bitDepth);
-	} else if(!strcasecmp(propertyName, "gainrange")) {
-		int lowRange;
-		int highRange;
-		errorCode = cri_GetCameraGainRange(handle, &lowRange, &highRange);
-		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(*mxarr);
-		data[0] = (double) lowRange;
-		data[1] = (double) highRange;
+		cri_ErrorCode errorCode = cri_GetCameraBitDepth(handle, &bitDepth);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) bitDepth);
+		return mxarr;
+//	} else if(!strcasecmp(propertyName, "gainrange")) {
+//		int lowRange;
+//		int highRange;
+//		cri_ErrorCode errorCode = cri_GetCameraGainRange(handle, &lowRange, &highRange);
+//		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+//		double *data = (double *) mxGetData(*mxarr);
+//		data[0] = (double) lowRange;
+//		data[1] = (double) highRange;
 	} else if(!strcasecmp(propertyName, "gain")) {
 		cri_ECameraGain gain;
-		errorCode = cri_GetCameraGain(handle, &gain);
-		mxarr = mxCreateDoubleScalar((double) gain);
+		cri_ErrorCode errorCode = cri_GetCameraGain(handle, &gain);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) gain);
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "exposurerange")) {
 		float lowRange;
 		float highRange;
-		errorCode = cri_GetCameraExposureRangeMs(handle, &lowRange, &highRange);
-		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(*mxarr);
+		cri_ErrorCode errorCode = cri_GetCameraExposureRangeMs(handle, &lowRange, &highRange);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(mxarr);
 		data[0] = (double) lowRange;
 		data[1] = (double) highRange;
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "exposure")) {
 		float exposure;
-		errorCode = cri_GetCameraExposureMs(handle, &exposure);
-		*mxarr = mxCreateDoubleScalar((double) exposure);
+		cri_ErrorCode errorCode = cri_GetCameraExposureMs(handle, &exposure);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) exposure);
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "binning")) {
 		cri_ECameraBinning binning;
-		errorCode = cri_GetCameraBinning(handle, &binning);
-		*mxarr = mxCreateDoubleScalar((double) binning);
+		cri_ErrorCode errorCode = cri_GetCameraBinning(handle, &binning);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) binning);
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "offsetrange")) {
 		int lowRange;
 		int highRange;
-		errorCode = cri_GetCameraOffsetRange(handle, &lowRange, &highRange);
-		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(*mxarr);
+		cri_ErrorCode errorCode = cri_GetCameraOffsetRange(handle, &lowRange, &highRange);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(mxarr);
 		data[0] = (double) lowRange;
 		data[1] = (double) highRange;
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "offset")) {
 		int offset;
-		errorCode = cri_GetCameraOffset(handle, &offset);
-		*mxarr = mxCreateDoubleScalar((double) offset);
+		cri_ErrorCode errorCode = cri_GetCameraOffset(handle, &offset);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) offset);
+		return mxarr;
 	} else {
-		errorCode = cri_NoError;
 		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported camera property: %s.", propertyName);
-	}
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
+		return NULL;
 	}
 }
 
-void getCameraProperties(const cri_CameraHandle handle, mxArray** mxstruct) {
+mxArray* getCameraProperties(const cri_CameraHandle handle) {
 
+	unsigned numProperties = (unsigned) CAMERA_PROPERTY_LENGTH;
+	mxArray *mxstruct;
 	char **propertyNames = (char **) \
-			mxMalloc((size_t) CAMERA_PROPERTY_LENGTH * sizeof(*propertyNames));
-	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
+			mxMalloc(numProperties * sizeof(*propertyNames));
+	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
 		propertyNames[iterProperty] = (char *) mxMalloc(cri_MAX_STRING_LENGTH * sizeof(char));
 		cameraPropertyToString((CAMERA_PROPERTY) iterProperty, propertyNames[iterProperty]);
 	}
-	*mxstruct = mxCreateStructMatrix(1, 1, (unsigned) CAMERA_PROPERTY_LENGTH, (const char **) propertyNames);
-	mxArray *temp = NULL;
-	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
-		getCameraProperty(handle, propertyNames[iterProperty], temp);
-		mxSetFieldByNumber(*mxstruct, 0, iterProperty, temp);
+	mxstruct = mxCreateStructMatrix(1, 1, numProperties, (const char **) propertyNames);
+	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
+		mxSetFieldByNumber(mxstruct, 0, iterProperty, getCameraProperty(handle, propertyNames[iterProperty]));
 	}
-	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
+	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
 		mxFree((void *) propertyNames[iterProperty]);
 	}
 	mxFree((void *) propertyNames);
+	return mxstruct;
 }
 
 void setCameraProperty(const cri_CameraHandle handle, \
 							const char* propertyName, \
 							const mxArray* mxarr) {
 
-	cri_ErrorCode errorCode;
 	double val = mxGetScalar(mxarr);
 	if(!strcasecmp(propertyName, "bitdepth")) {
-		errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) val);
+		cri_ErrorCode errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) val);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
 	} else if(!strcasecmp(propertyName, "gain")) {
-		errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) val);
+		cri_ErrorCode errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) val);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
 	} else if(!strcasecmp(propertyName, "exposure")) {
-		errorCode = cri_SetCameraExposureMs(handle, (float) val);
+		cri_ErrorCode errorCode = cri_SetCameraExposureMs(handle, (float) val);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
 	} else if(!strcasecmp(propertyName, "binning")) {
-		errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) val);
+		cri_ErrorCode errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) val);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
 	} else if(!strcasecmp(propertyName, "offset")) {
-		errorCode = cri_SetCameraOffset(handle, (int) val);
+		cri_ErrorCode errorCode = cri_SetCameraOffset(handle, (int) val);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
 	} else {
-		errorCode = cri_NoError;
 		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported camera property: %s.", propertyName);
-	}
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
 	}
 }
 
@@ -219,101 +285,115 @@ void setCameraProperties(const cri_CameraHandle handle, \
 	}
 }
 
-void getFilterProperty(const cri_FilterHandle handle, \
-							const char* propertyName, \
-							mxArray* mxarr) {
+mxArray* getFilterProperty(const cri_FilterHandle handle, \
+							const char* propertyName) {
 
-	cri_ErrorCode errorCode;
 	if (!strcasecmp(propertyName, "serial")) {
 		int serial;
 		float lowWavelengthRange;
 		float highWavelengthRange;
 		int waveplateStages;
 		int firmware;
-		errorCode = cri_GetFilterDescription(handle, &serial, \
+		cri_ErrorCode errorCode = cri_GetFilterDescription(handle, &serial, \
 										&lowWavelengthRange, &highWavelengthRange, \
 										&waveplateStages, &firmware);
-		mxarr = mxCreateDoubleScalar((double) serial);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) serial);
+		return mxarr;
 	} else if (!strcasecmp(propertyName, "firmware")) {
 		int serial;
 		float lowWavelengthRange;
 		float highWavelengthRange;
 		int waveplateStages;
 		int firmware;
-		errorCode = cri_GetFilterDescription(handle, &serial, \
+		cri_ErrorCode errorCode = cri_GetFilterDescription(handle, &serial, \
 										&lowWavelengthRange, &highWavelengthRange, \
 										&waveplateStages, &firmware);
-		mxarr = mxCreateDoubleScalar((double) firmware);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) firmware);
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "range")) {
 		float lowWavelengthRange;
 		float highWavelengthRange;
 		float stepSize;
-		errorCode = cri_GetFilterRangeAndStepSize(handle, &lowWavelengthRange, \
+		cri_ErrorCode errorCode = cri_GetFilterRangeAndStepSize(handle, &lowWavelengthRange, \
 												&highWavelengthRange, &stepSize);
-		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
 		double *data = (double *) mxGetData(mxarr);
 		data[0] = (double) lowWavelengthRange;
 		data[1] = (double) highWavelengthRange;
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "stepsize")) {
 		float lowWavelengthRange;
 		float highWavelengthRange;
 		float stepSize;
-		errorCode = cri_GetFilterRangeAndStepSize(handle, &lowWavelengthRange, \
+		cri_ErrorCode errorCode = cri_GetFilterRangeAndStepSize(handle, &lowWavelengthRange, \
 												&highWavelengthRange, &stepSize);
-		mxarr = mxCreateDoubleScalar((double) stepSize);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) stepSize);
+		return mxarr;
 	} else if(!strcasecmp(propertyName, "wavelength")) {
 		cri_FilterState filterState;
 		filterState.reserved[0] = 0.0f;
 		filterState.reserved[1] = 0.0f;
-		errorCode = cri_GetFilterState(handle, &filterState);
-		mxarr = mxCreateDoubleScalar((double) filterState.wavelength);
+		cri_ErrorCode errorCode = cri_GetFilterState(handle, &filterState);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		mxArray *mxarr = mxCreateDoubleScalar((double) filterState.wavelength);
+		return mxarr;
 	} else {
-		errorCode = cri_NoError;
 		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported filter property: %s.", propertyName);
-	}
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
+		return NULL;
 	}
 }
 
-void getFilterProperties(const cri_FilterHandle handle, mxArray* mxstruct) {
+mxArray* getFilterProperties(const cri_FilterHandle handle) {
 
+	unsigned numProperties = (unsigned) FILTER_PROPERTY_LENGTH;
+	mxArray *mxstruct;
 	char **propertyNames = (char **) \
-			mxMalloc((size_t) FILTER_PROPERTY_LENGTH * sizeof(*propertyNames));
-	for (unsigned iterProperty = 0; iterProperty < (unsigned) FILTER_PROPERTY_LENGTH; ++iterProperty) {
+			mxMalloc(numProperties * sizeof(*propertyNames));
+	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
 		propertyNames[iterProperty] = (char *) mxMalloc(cri_MAX_STRING_LENGTH * sizeof(char));
 		filterPropertyToString((FILTER_PROPERTY) iterProperty, propertyNames[iterProperty]);
 	}
-	mxstruct = mxCreateStructMatrix(1, 1, (unsigned) FILTER_PROPERTY_LENGTH, (const char **) propertyNames);
-	mxArray *temp = NULL;
-	for (unsigned iterProperty = 0; iterProperty < (unsigned) FILTER_PROPERTY_LENGTH; ++iterProperty) {
-		getFilterProperty(handle, propertyNames[iterProperty], temp);
-		mxSetFieldByNumber(mxstruct, 0, iterProperty, temp);
+	mxstruct = mxCreateStructMatrix(1, 1, numProperties, (const char **) propertyNames);
+	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
+		mxSetFieldByNumber(mxstruct, 0, iterProperty, getFilterProperty(handle, propertyNames[iterProperty]));
 	}
-	for (unsigned iterProperty = 0; iterProperty < (unsigned) FILTER_PROPERTY_LENGTH; ++iterProperty) {
+	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
 		mxFree((void *) propertyNames[iterProperty]);
 	}
 	mxFree((void *) propertyNames);
+	return mxstruct;
 }
 
 void setFilterProperty(const cri_FilterHandle handle, \
 							const char* propertyName, \
 							const mxArray* mxarr) {
 
-	cri_ErrorCode errorCode;
 	double val = mxGetScalar(mxarr);
 	if(!strcasecmp(propertyName, "wavelength")) {
 		cri_FilterState filterState;
 		filterState.wavelength = (double) val;
 		filterState.reserved[0] = 0.0f;
 		filterState.reserved[1] = 0.0f;
-		errorCode = cri_SetFilterState(handle, filterState, true);
+		cri_ErrorCode errorCode = cri_SetFilterState(handle, filterState, true);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
 	} else {
-		errorCode = cri_NoError;
 		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported filter property: %s.", propertyName);
-	}
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
 	}
 }
 
@@ -340,9 +420,9 @@ cri_CameraHandle openCamera() {
 	int numCameras = cri_GetNumberAvailableCameras();
 	if (numCameras > 1) {
 		mexWarnMsgTxt("Warning: more than one available cameras found. Multiple cameras are not well supported.");
-	} else if (numCameras < 0) {
+	} else if (numCameras <= 0) {
 		mexErrMsgIdAndTxt(ERROR_ID, "No available camera found.");
-		return cri_InvalidCameraHandle;
+		return -1;
 	}
 	int *cameraIDs = new int[numCameras];
 	int numCameraIDs = cri_FindAvailableCameras(cameraIDs, numCameras);
@@ -381,9 +461,9 @@ cri_FilterHandle openFilter() {
 	int numFilters = cri_GetNumberAvailableFilters();
 	if (numFilters > 1) {
 		mexWarnMsgTxt("Warning: more than one available filters found. Multiple filters are not well supported.");
-	} else if (numFilters < 0) {
+	} else if (numFilters <= 0) {
 		mexErrMsgIdAndTxt(ERROR_ID, "No available filter found.");
-		return cri_InvalidFilterHandle;
+		return -1;
 	}
 	int *filterIDs = new int[numFilters];
 	int numFilterIDs = cri_FindAvailableFilters(filterIDs, numFilters);

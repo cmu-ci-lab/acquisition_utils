@@ -11,32 +11,33 @@
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	
 	/* Check number of input arguments */
-	if (nrhs != 2) {
-		mexErrMsgTxt("Two or less input arguments are required.");
-    }
-
-	/* Check number of output arguments */
-	if (nlhs > 1) {
-		mexErrMsgTxt("Too many output arguments.");
-    }
-
-	double *X = (double*) mxGetData(prhs[0]);
-	double *lambda = (double*) mxGetData(prhs[1]);
-
-	int M = (int) mxGetM(prhs[0]);
-	int N = (int) mxGetN(prhs[0]);
-	
-	plhs[0] = mxCreateNumericMatrix(M, N, mxDOUBLE_CLASS, mxREAL); /* x */
-	double *S = (double *) mxGetData(plhs[0]);
-
-	for (int iterN = 0; iterN < N; ++iterN) {
-		for (int iterM = 0; iterM < M; ++iterM) {
-			S[iterN * M + iterM] = X[iterN * M + iterM] + *lambda * (double) (iterN + 1);
-		}
-	}
+//	if (nrhs != 2) {
+//		mexErrMsgTxt("Two or less input arguments are required.");
+//    }
+//
+//	/* Check number of output arguments */
+//	if (nlhs > 1) {
+//		mexErrMsgTxt("Too many output arguments.");
+//    }
+//
+//	double *X = (double*) mxGetData(prhs[0]);
+//	double *lambda = (double*) mxGetData(prhs[1]);
+//
+//	int M = (int) mxGetM(prhs[0]);
+//	int N = (int) mxGetN(prhs[0]);
+//
+//	plhs[0] = mxCreateNumericMatrix(M, N, mxDOUBLE_CLASS, mxREAL); /* x */
+//	double *S = (double *) mxGetData(plhs[0]);
+//
+//	for (int iterN = 0; iterN < N; ++iterN) {
+//		for (int iterM = 0; iterM < M; ++iterM) {
+//			S[iterN * M + iterM] = X[iterN * M + iterM] + *lambda * (double) (iterN + 1);
+//		}
+//	}
 	fprintf(stderr, "test1\n");
-	fprintf(stdio, "test2\n");
+	fprintf(stdout, "test2\n");
 	printf("test3\n");
+	mexPrintf("test4\n");
 
 
 //   for (int idx = 0; idx < ALLOWED_STREAM_COUNT; ++idx){

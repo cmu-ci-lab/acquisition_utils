@@ -30,9 +30,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		const int lengthPropertyName = mxGetNumberOfElements(prhs[1]) + 1;
 		char* propertyName = (char *) mxMalloc(lengthPropertyName * sizeof(char));
 		mxGetString(prhs[1], propertyName, lengthPropertyName);
-		nuance::getCameraProperty(handle, propertyName, &plhs[0]);
+		plhs[0] = nuance::getCameraProperty(handle, propertyName);
 		mxFree(propertyName);
 	} else {
-		nuance::getCameraProperties(handle, &plhs[0]);
+		plhs[0] = nuance::getCameraProperties(handle);
 	}
 }
