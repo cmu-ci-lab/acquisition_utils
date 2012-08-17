@@ -331,4 +331,84 @@ void setFilterProperties(const cri_FilterHandle handle, \
 	}
 }
 
+unsigned queryCamera() {
+	return (unsigned) cri_GetNumberAvailableCameras();
+}
+
+cri_CameraHandle openCamera() {
+
+	int numCameras = cri_GetNumberAvailableCameras();
+	if (numCameras > 1) {
+		mexWarnMsgTxt("Warning: more than one available cameras found. Multiple cameras are not well supported.");
+	} else if (numCameras < 0) {
+		mexErrMsgTxt("No available camera found.");
+		return cri_InvalidCameraHandle;
+	}
+	int *cameraIDs = new int[numCameras];
+	int numCameraIDs = cri_FindAvailableCameras(cameraIDs, numCameras);
+
+	if (numCameraIDs > 0){
+		cri_CameraHandle handle;
+		cri_ErrorCode errorCode = cri_OpenCamera(cameraIDs[0], &handle);
+
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		delete [] cameraIDs;
+		return handle;
+	} else {
+		delete [] cameraIDs;
+		mexErrMsgTxt("No available camera found.");
+		return -1;
+	}
+}
+
+//CAMERA_STATUS checkCamera(const cri_CameraHandle handle);
+
+void closeCamera(cri_CameraHandle handle) {
+	cri_ErrorCode errorCode = cri_CloseCamera(&handle);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+}
+
+unsigned queryFilter() {
+	return (unsigned) cri_GetNumberAvailableFilters();
+}
+
+cri_FilterHandle openFilter() {
+
+	int numFilters = cri_GetNumberAvailableFilters();
+	if (numFilters > 1) {
+		mexWarnMsgTxt("Warning: more than one available filters found. Multiple filters are not well supported.");
+	} else if (numFilters < 0) {
+		mexErrMsgTxt("No available filter found.");
+		return cri_InvalidFilterHandle;
+	}
+	int *filterIDs = new int[numFilters];
+	int numFilterIDs = cri_FindAvailableFilters(filterIDs, numFilters);
+
+	if (numFilterIDs > 0){
+		cri_FilterHandle handle;
+		cri_ErrorCode errorCode = cri_OpenFilter(filterIDs[0], &handle);
+
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		delete [] filterIDs;
+		return handle;
+	} else {
+		delete [] filterIDs;
+		mexErrMsgTxt("No available filter found.");
+		return -1;
+	}
+}
+
+void closeFilter(cri_FilterHandle handle) {
+	cri_ErrorCode errorCode = cri_CloseFilter(&handle);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+}
+
 }	/* namespace nuance */

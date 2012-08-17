@@ -13,12 +13,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	if (nrhs != 2) {
 		mexErrMsgTxt("Two or less input arguments are required.");
     }
-	
+
 	/* Check number of output arguments */
 	if (nlhs > 1) {
 		mexErrMsgTxt("Too many output arguments.");
-    }  
-	
+    }
+
 	double *X = (double*) mxGetData(prhs[0]);
 	double *lambda = (double*) mxGetData(prhs[1]);
 
@@ -33,7 +33,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			S[iterN * M + iterM] = X[iterN * M + iterM] + *lambda * (double) (iterN + 1);
 		}
 	}
-	
+
 //   for (int idx = 0; idx < ALLOWED_STREAM_COUNT; ++idx){
 //      m_StreamImages[idx].image = NULL;
 //      m_StreamImages[idx].wavelengths = NULL;

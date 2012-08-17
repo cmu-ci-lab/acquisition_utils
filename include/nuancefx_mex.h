@@ -34,12 +34,16 @@ typedef enum {
 	CAMERA_BINNING = 13,
 	CAMERA_OFFSETRANGE = 14,
 	CAMERA_OFFSET = 15,
-//	CAMERA_COOLERSTATUS,
-//	CAMERA_TEMPERATURE,
-//	CAMERA_ROI = 16,
 	CAMERA_PROPERTY_LENGTH = 16,
-	CAMERA_INVALID = -1
+	CAMERA_PROPERTY_INVALID = -1
 } CAMERA_PROPERTY;
+
+typedef enum {
+	CAMERA_READY = 0,
+	CAMERA_BUSY = 1,
+	CAMERA_STATUS_LENGTH = 2,
+	CAMERA_STATUS_INVALID = -1
+} CAMERA_STATUS;
 
 typedef enum {
 	FILTER_SERIAL = 0,
@@ -48,8 +52,15 @@ typedef enum {
 	FILTER_STEPSIZE = 3,
 	FILTER_WAVELENGTH = 4,
 	FILTER_PROPERTY_LENGTH = 5,
-	FILTER_INVALID = -1
+	FILTER_PROPERTY_INVALID = -1
 } FILTER_PROPERTY;
+
+typedef enum {
+	FILTER_READY = 0,
+	FILTER_BUSY = 1,
+	FILTER_STATUS_LENGTH = 2,
+	FILTER_STATUS_INVALID = -1
+} FILTER_STATUS;
 
 inline void handleErrorCode(const cri_ErrorCode errorCode) {
 
@@ -204,6 +215,8 @@ inline void filterPropertyToString(const FILTER_PROPERTY property, \
 	}
 }
 
+
+/* Camera getters and setters. */
 void getCameraProperty(const cri_CameraHandle handle, \
 					const char* propertyName, \
 					mxArray* mxarr);
@@ -218,6 +231,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 void setCameraProperties(const cri_CameraHandle handle, \
 						const mxArray* mxstruct);
 
+/* Filter getters and setters. */
 void getFilterProperty(const cri_FilterHandle handle, \
 					const char* propertyName, \
 					mxArray* mxarr);
@@ -232,9 +246,17 @@ void setFilterProperty(const cri_FilterHandle handle, \
 void setFilterProperties(const cri_FilterHandle handle, \
 						const mxArray* mxstruct);
 
-//int m_CameraImageStreamCount = 0;
+/* Camera access. */
+unsigned queryCamera();
+cri_CameraHandle openCamera();
+CAMERA_STATUS checkCamera(const cri_CameraHandle handle);
+void closeCamera(cri_CameraHandle handle);
 
-//const int ALLOWED_STREAM_COUNT = 8;
+/* Filter access. */
+unsigned queryFilter();
+cri_FilterHandle openFilter();
+FILTER_STATUS checkFilter(const cri_FilterHandle handle);
+void closeFilter(cri_FilterHandle handle);
 
 //cri_Int8Image m_SnapImage;
 //cri_Int8Image m_StreamImages[ALLOWED_STREAM_COUNT];
