@@ -184,23 +184,23 @@ inline void cameraPropertyToString(const CAMERA_PROPERTY property, \
 								char *propertyName) {
 
 	switch (property) {
-		case CAMERA_NAME: { strcpy(propertyName, "name"); }
-		case CAMERA_SERIAL: { strcpy(propertyName, "serial"); }
-		case CAMERA_DRIVER: { strcpy(propertyName, "driver"); }
-		case CAMERA_FIRMWARE: { strcpy(propertyName, "firmware"); }
-		case CAMERA_SENSOR: { strcpy(propertyName, "sensor"); }
-		case CAMERA_SENSORSIZE: { strcpy(propertyName, "sensorsize"); }
-		case CAMERA_IMAGESIZE: { strcpy(propertyName, "imagesize"); }
-		case CAMERA_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); }
-		case CAMERA_BITDEPTH: { strcpy(propertyName, "bitdepth"); }
-		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); }
-		case CAMERA_GAIN: { strcpy(propertyName, "gain"); }
-		case CAMERA_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); }
-		case CAMERA_EXPOSURE: { strcpy(propertyName, "exposure"); }
-		case CAMERA_BINNING: { strcpy(propertyName, "binning"); }
-		case CAMERA_OFFSETRANGE: { strcpy(propertyName, "offsetrange"); }
-		case CAMERA_OFFSET: { strcpy(propertyName, "offset"); }
-		default: { strcpy(propertyName, "unknown"); }
+		case CAMERA_NAME: { strcpy(propertyName, "name"); return; }
+		case CAMERA_SERIAL: { strcpy(propertyName, "serial"); return; }
+		case CAMERA_DRIVER: { strcpy(propertyName, "driver"); return; }
+		case CAMERA_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
+		case CAMERA_SENSOR: { strcpy(propertyName, "sensor"); return; }
+		case CAMERA_SENSORSIZE: { strcpy(propertyName, "sensorsize"); return; }
+		case CAMERA_IMAGESIZE: { strcpy(propertyName, "imagesize"); return; }
+		case CAMERA_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); return; }
+		case CAMERA_BITDEPTH: { strcpy(propertyName, "bitdepth"); return; }
+		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); return; }
+		case CAMERA_GAIN: { strcpy(propertyName, "gain"); return; }
+		case CAMERA_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); return; }
+		case CAMERA_EXPOSURE: { strcpy(propertyName, "exposure"); return; }
+		case CAMERA_BINNING: { strcpy(propertyName, "binning"); return; }
+		case CAMERA_OFFSETRANGE: { strcpy(propertyName, "offsetrange"); return; }
+		case CAMERA_OFFSET: { strcpy(propertyName, "offset"); return; }
+		default: { strcpy(propertyName, "unknown"); return; }
 	}
 }
 
@@ -208,12 +208,12 @@ inline void filterPropertyToString(const FILTER_PROPERTY property, \
 								char *propertyName) {
 
 	switch (property) {
-		case FILTER_SERIAL: { strcpy(propertyName, "serial"); }
-		case FILTER_FIRMWARE: { strcpy(propertyName, "firmware"); }
-		case FILTER_RANGE: { strcpy(propertyName, "range"); }
-		case FILTER_STEPSIZE: { strcpy(propertyName, "stepsize"); }
-		case FILTER_WAVELENGTH: { strcpy(propertyName, "wavelength"); }
-		default: { strcpy(propertyName, "unknown"); }
+		case FILTER_SERIAL: { strcpy(propertyName, "serial"); return; }
+		case FILTER_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
+		case FILTER_RANGE: { strcpy(propertyName, "range"); return; }
+		case FILTER_STEPSIZE: { strcpy(propertyName, "stepsize"); return; }
+		case FILTER_WAVELENGTH: { strcpy(propertyName, "wavelength"); return; }
+		default: { strcpy(propertyName, "unknown"); return; }
 	}
 }
 
