@@ -4,12 +4,7 @@
 # USE_PROFILE = 1
 # DEBUG_MODE = 1
 
-USE_GCC = 1
-ifdef USE_GCC
-	include gcc.mk
-else
-	include icc.mk
-endif
+include gcc.mk
 
 ROOTDIR = .
 INCLUDEDIR = $(ROOTDIR)/include
@@ -24,11 +19,11 @@ all: tests camera filter
 tests: $(MEXDIR)/temp_mex.$(MEXEXT)
 
 camera: $(MEXDIR)/nuanceget.$(MEXEXT) $(MEXDIR)/nuanceset.$(MEXEXT) \
-		$(MEXDIR)/nuancequery.$(MEXEXT) \
+		$(MEXDIR)/nuancequery.$(MEXEXT) $(MEXDIR)/nuancecheck.$(MEXEXT) \
 		$(MEXDIR)/nuanceopen.$(MEXEXT) $(MEXDIR)/nuanceclose.$(MEXEXT)
 
 filter: $(MEXDIR)/filterget.$(MEXEXT) $(MEXDIR)/filterset.$(MEXEXT) \
-		$(MEXDIR)/filterquery.$(MEXEXT) \
+		$(MEXDIR)/filterquery.$(MEXEXT) $(MEXDIR)/filtercheck.$(MEXEXT) \
 		$(MEXDIR)/filteropen.$(MEXEXT) $(MEXDIR)/filterclose.$(MEXEXT)
 
 ## test mex executable 

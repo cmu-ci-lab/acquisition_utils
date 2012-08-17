@@ -43,7 +43,9 @@ typedef enum {
 typedef enum {
 	CAMERA_READY = 0,
 	CAMERA_BUSY = 1,
-	CAMERA_STATUS_LENGTH = 2,
+	CAMERA_STREAMING = 2,
+	CAMERA_ACQUIRING = 3,
+	CAMERA_STATUS_LENGTH = 4,
 	CAMERA_STATUS_INVALID = -1
 } CAMERA_STATUS;
 
@@ -64,6 +66,7 @@ typedef enum {
 	FILTER_STATUS_INVALID = -1
 } FILTER_STATUS;
 
+// TODO: Maybe rewrite with cri_GetLastError?
 inline void handleErrorCode(const cri_ErrorCode errorCode) {
 
 	switch(errorCode) {
@@ -256,6 +259,23 @@ cri_FilterHandle openFilter();
 FILTER_STATUS checkFilter(const cri_FilterHandle handle);
 void closeFilter(cri_FilterHandle handle);
 
+/* Device access. */
+void queryDevice(unsigned *numCameras, unsigned *numFilters);
+void openDevice(cri_CameraHandle *cameraHandle, cri_FilterHandle *filterHandle);
+void checkDevice(const cri_CameraHandle cameraHandle, \
+				const cri_FilterHandle filterHandle, \
+				CAMERA_STATUS *cameraStatus, \
+				FILTER_STATUS *filterStatus);
+void closeDevice(cri_CameraHandle cameraHandle, cri_FilterHandle filterHandle);
+
+float getAutoExposure(const cri_CameraHandle cameraHandle, \
+					const cri_FilterHandle filterHandle);
+
+
+
+//float getAutoExposureCube(const cri_CameraHandle cameraHandle, \
+//					const cri_FilterHandle filterHandle);
+
 //cri_Int8Image m_SnapImage;
 //cri_Int8Image m_StreamImages[ALLOWED_STREAM_COUNT];
 //cri_Int8Image m_AcquireCube;
@@ -265,7 +285,6 @@ void closeFilter(cri_FilterHandle handle);
 //const float DEFAULT_CUBE_ACQUIRE_EXPOSURE_MS = 100.0;
 //
 //
-//void StreamInt8Callback(cri_Int8Image image);
 //void SnapInt8Callback(cri_Int8Image image);
 //void AcquireCubeInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, cri_FilterState filterStates[],
 //   float exposureTimesMs[],

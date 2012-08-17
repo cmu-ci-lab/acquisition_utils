@@ -7,8 +7,6 @@
 
 #include "nuancefx_mex.h"
 
-#include <iostream>
-
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	/* Check number of input arguments */
@@ -23,6 +21,5 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 
 	unsigned numCameras = nuance::queryCamera();
 	plhs[0] = mxCreateDoubleScalar((double) numCameras);
-//	mexPrintf("Available cameras: %u.\n", numCameras);
 }
 

@@ -443,7 +443,37 @@ cri_CameraHandle openCamera() {
 	}
 }
 
-//CAMERA_STATUS checkCamera(const cri_CameraHandle handle);
+CAMERA_STATUS checkCamera(const cri_CameraHandle handle) {
+	cri_ErrorCode errorCode;
+	bool ready = false;
+	errorCode = cri_CameraReady(handle, &ready);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+	if (!ready) {
+		return CAMERA_BUSY;
+	}
+
+	bool streaming = false;
+	errorCode = cri_IsCameraStreaming(handle, &streaming);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+	if (!streaming) {
+		return CAMERA_STREAMING;
+	}
+
+	bool acquiring = false;
+	errorCode = cri_IsCameraAcquiring(handle, &acquiring);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+	if (!acquiring) {
+		return CAMERA_ACQUIRING;
+	}
+
+	return CAMERA_READY;
+}
 
 void closeCamera(cri_CameraHandle handle) {
 	cri_ErrorCode errorCode = cri_CloseCamera(&handle);
@@ -484,11 +514,82 @@ cri_FilterHandle openFilter() {
 	}
 }
 
+FILTER_STATUS checkFilter(const cri_FilterHandle handle) {
+	cri_ErrorCode errorCode;
+	bool ready = false;
+	errorCode = cri_FilterReady(handle, &ready);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+	if (!ready) {
+		return FILTER_BUSY;
+	}
+
+	return FILTER_READY;
+}
+
 void closeFilter(cri_FilterHandle handle) {
 	cri_ErrorCode errorCode = cri_CloseFilter(&handle);
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
 	}
 }
+
+void queryDevice(unsigned *numCameras, unsigned *numFilters) {
+	*numCameras = queryCamera();
+	*numFilters = queryFilter();
+}
+
+void openDevice(cri_CameraHandle *cameraHandle, cri_FilterHandle *filterHandle) {
+	*cameraHandle = openCamera();
+	*filterHandle = openFilter();
+}
+
+void checkDevice(const cri_CameraHandle cameraHandle, \
+				const cri_FilterHandle filterHandle, \
+				CAMERA_STATUS *cameraStatus, \
+				FILTER_STATUS *filterStatus) {
+	*cameraStatus = checkCamera(cameraHandle);
+	*filterStatus = checkFilter(filterHandle);
+}
+
+void closeDevice(cri_CameraHandle cameraHandle, cri_FilterHandle filterHandle) {
+	closeCamera(cameraHandle);
+	closeFilter(filterHandle);
+}
+
+float getAutoExposure(const cri_CameraHandle cameraHandle, \
+					const cri_FilterHandle filterHandle) {
+	cri_AutoExposeParameters parameters;
+	parameters.rule = cri_AutoExposeRuleBrightest;
+	parameters.targetRatioFullScale = 1.0f;
+	cri_ErrorCode errorCode;
+	errorCode = cri_GetCameraExposureRangeMs(cameraHandle, \
+												&(parameters.minExposureMs), \
+												&(parameters.maxExposureMs));
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+		return 0.0f;
+	}
+
+//	TODO: Check if these should be 1 or 0, and sensor or image dims.
+	parameters.roiOriginX = 1;
+	parameters.roiOriginY = 1;
+	errorCode = cri_GetCameraImageSize(cameraHandle, &(parameters.roiWidth), \
+									&(parameters.roiWidth));
+
+	parameters.minAcceptableRatioFullScale = 0.0f;
+	parameters.maxAcceptableRatioFullScale = 0.0f;
+
+	float exposure;
+	errorCode = cri_AutoExposePlane(cameraHandle, filterHandle, parameters,
+									&exposure);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+		return 0.0f;
+	}
+	return exposure;
+}
+
 
 }	/* namespace nuance */
