@@ -10,7 +10,7 @@ namespace nuance {
 
 void getCameraProperty(const cri_CameraHandle handle, \
 							const char* propertyName, \
-							mxArray* mxarr) {
+							mxArray** mxarr) {
 
 	cri_ErrorCode errorCode;
 	if (!strcasecmp(propertyName, "name")) {
@@ -25,7 +25,7 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		mxarr = mxCreateString(name);
+		*mxarr = mxCreateString(name);
 	} else if (!strcasecmp(propertyName, "serial")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -38,7 +38,7 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		mxarr = mxCreateString(serial);
+		*mxarr = mxCreateString(serial);
 	} else if (!strcasecmp(propertyName, "driver")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -51,7 +51,7 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		mxarr = mxCreateString(driver);
+		*mxarr = mxCreateString(driver);
 	} else if (!strcasecmp(propertyName, "firmware")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -64,7 +64,7 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		mxarr = mxCreateString(firmware);
+		*mxarr = mxCreateString(firmware);
 	} else if (!strcasecmp(propertyName, "sensor")) {
 		char name[cri_MAX_STRING_LENGTH];
 		char serial[cri_MAX_STRING_LENGTH];
@@ -77,21 +77,21 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		mxarr = mxCreateString(sensor);
+		*mxarr = mxCreateString(sensor);
 	} else if (!strcasecmp(propertyName, "sensorsize")) {
 		int width;
 		int height;
 		errorCode = cri_GetCameraSensorSize(handle, &width, &height);
-		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(mxarr);
+		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(*mxarr);
 		data[0] = (double) width;
 		data[1] = (double) height;
 	} else if (!strcasecmp(propertyName, "imagesize")) {
 		int width;
 		int height;
 		errorCode = cri_GetCameraImageSize(handle, &width, &height);
-		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(mxarr);
+		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(*mxarr);
 		data[0] = (double) width;
 		data[1] = (double) height;
 	} else if (!strcasecmp(propertyName, "maxbitdepth")) {
@@ -106,17 +106,17 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		errorCode = cri_GetCameraDescription(handle, name, serial, sensor, \
 										&maxBitDepth, &sensorWidth, &sensorHeight, \
 										driver, firmware);
-		mxarr = mxCreateDoubleScalar((double) maxBitDepth);
+		*mxarr = mxCreateDoubleScalar((double) maxBitDepth);
 	} else if(!strcasecmp(propertyName, "bitdepth")) {
 		cri_ECameraBitDepth bitDepth;
 		errorCode = cri_GetCameraBitDepth(handle, &bitDepth);
-		mxarr = mxCreateDoubleScalar((double) bitDepth);
+		*mxarr = mxCreateDoubleScalar((double) bitDepth);
 	} else if(!strcasecmp(propertyName, "gainrange")) {
 		int lowRange;
 		int highRange;
 		errorCode = cri_GetCameraGainRange(handle, &lowRange, &highRange);
-		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(mxarr);
+		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(*mxarr);
 		data[0] = (double) lowRange;
 		data[1] = (double) highRange;
 	} else if(!strcasecmp(propertyName, "gain")) {
@@ -127,30 +127,30 @@ void getCameraProperty(const cri_CameraHandle handle, \
 		float lowRange;
 		float highRange;
 		errorCode = cri_GetCameraExposureRangeMs(handle, &lowRange, &highRange);
-		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(mxarr);
+		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(*mxarr);
 		data[0] = (double) lowRange;
 		data[1] = (double) highRange;
 	} else if(!strcasecmp(propertyName, "exposure")) {
 		float exposure;
 		errorCode = cri_GetCameraExposureMs(handle, &exposure);
-		mxarr = mxCreateDoubleScalar((double) exposure);
+		*mxarr = mxCreateDoubleScalar((double) exposure);
 	} else if(!strcasecmp(propertyName, "binning")) {
 		cri_ECameraBinning binning;
 		errorCode = cri_GetCameraBinning(handle, &binning);
-		mxarr = mxCreateDoubleScalar((double) binning);
+		*mxarr = mxCreateDoubleScalar((double) binning);
 	} else if(!strcasecmp(propertyName, "offsetrange")) {
 		int lowRange;
 		int highRange;
 		errorCode = cri_GetCameraOffsetRange(handle, &lowRange, &highRange);
-		mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
-		double *data = (double *) mxGetData(mxarr);
+		*mxarr = mxCreateDoubleMatrix(2, 1, mxREAL);
+		double *data = (double *) mxGetData(*mxarr);
 		data[0] = (double) lowRange;
 		data[1] = (double) highRange;
 	} else if(!strcasecmp(propertyName, "offset")) {
 		int offset;
 		errorCode = cri_GetCameraOffset(handle, &offset);
-		mxarr = mxCreateDoubleScalar((double) offset);
+		*mxarr = mxCreateDoubleScalar((double) offset);
 	} else {
 		errorCode = cri_NoError;
 		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported camera property: %s.", propertyName);
@@ -160,7 +160,7 @@ void getCameraProperty(const cri_CameraHandle handle, \
 	}
 }
 
-void getCameraProperties(const cri_CameraHandle handle, mxArray* mxstruct) {
+void getCameraProperties(const cri_CameraHandle handle, mxArray** mxstruct) {
 
 	char **propertyNames = (char **) \
 			mxMalloc((size_t) CAMERA_PROPERTY_LENGTH * sizeof(*propertyNames));
@@ -168,11 +168,11 @@ void getCameraProperties(const cri_CameraHandle handle, mxArray* mxstruct) {
 		propertyNames[iterProperty] = (char *) mxMalloc(cri_MAX_STRING_LENGTH * sizeof(char));
 		cameraPropertyToString((CAMERA_PROPERTY) iterProperty, propertyNames[iterProperty]);
 	}
-	mxstruct = mxCreateStructMatrix(1, 1, (unsigned) CAMERA_PROPERTY_LENGTH, (const char **) propertyNames);
+	*mxstruct = mxCreateStructMatrix(1, 1, (unsigned) CAMERA_PROPERTY_LENGTH, (const char **) propertyNames);
 	mxArray *temp = NULL;
 	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
 		getCameraProperty(handle, propertyNames[iterProperty], temp);
-		mxSetFieldByNumber(mxstruct, 0, iterProperty, temp);
+		mxSetFieldByNumber(*mxstruct, 0, iterProperty, temp);
 	}
 	for (unsigned iterProperty = 0; iterProperty < (unsigned) CAMERA_PROPERTY_LENGTH; ++iterProperty) {
 		mxFree((void *) propertyNames[iterProperty]);
