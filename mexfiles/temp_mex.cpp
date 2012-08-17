@@ -5,6 +5,7 @@
 #include "nuancefx_mex.h"
 
 #include <iostream>
+#include <stdio.h>
 #include <cstring>
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
@@ -33,6 +34,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 			S[iterN * M + iterM] = X[iterN * M + iterM] + *lambda * (double) (iterN + 1);
 		}
 	}
+	fprintf(stderr, "test1\n");
+	fprintf(stdio, "test2\n");
+	printf("test3\n");
+
 
 //   for (int idx = 0; idx < ALLOWED_STREAM_COUNT; ++idx){
 //      m_StreamImages[idx].image = NULL;
