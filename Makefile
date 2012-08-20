@@ -14,7 +14,7 @@ MEXDIR = $(ROOTDIR)/mexfiles
 BINDIR = $(ROOTDIR)/bin
 INCLUDES += -I$(INCLUDEDIR)
 
-all: tests camera filter
+all: tests camera filter operations
 	
 tests: $(MEXDIR)/temp_mex.$(MEXEXT)
 
@@ -25,6 +25,9 @@ camera: $(MEXDIR)/nuanceget.$(MEXEXT) $(MEXDIR)/nuanceset.$(MEXEXT) \
 filter: $(MEXDIR)/filterget.$(MEXEXT) $(MEXDIR)/filterset.$(MEXEXT) \
 		$(MEXDIR)/filterquery.$(MEXEXT) $(MEXDIR)/filtercheck.$(MEXEXT) \
 		$(MEXDIR)/filteropen.$(MEXEXT) $(MEXDIR)/filterclose.$(MEXEXT)
+		
+operations: $(MEXDIR)/nuanceautoexpose.$(MEXEXT) \
+			$(MEXDIR)/nuancecapture.$(MEXEXT)
 
 ## test mex executable 
 $(MEXDIR)/%.$(MEXEXT): $(MEXDIR)/%.o $(SRCDIR)/nuancefx_mex.o  

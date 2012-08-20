@@ -639,7 +639,7 @@ void AcquireCube()
       DisplayErrorMessage();
       return;
    };
-
+   cri_Int8Image m_AcquireCube;
    m_AcquireCube.width = width;
    m_AcquireCube.height = height;
 

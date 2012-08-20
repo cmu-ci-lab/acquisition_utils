@@ -19,6 +19,8 @@
 
 namespace nuance {
 
+const unsigned int CUBE_ACQUIRE_FRAMES_TO_AVERAGE = 1;
+
 typedef enum {
 	CAMERA_NAME = 0,
 	CAMERA_SERIAL = 1,
@@ -247,6 +249,10 @@ void setFilterProperty(const cri_FilterHandle handle, \
 void setFilterProperties(const cri_FilterHandle handle, \
 						const mxArray* mxstruct);
 
+/*
+ * TODO: Rewrite access functions to also return void or mxArray*,
+ * as in rest of interface.
+ */
 /* Camera access. */
 unsigned queryCamera();
 cri_CameraHandle openCamera();
@@ -268,10 +274,13 @@ void checkDevice(const cri_CameraHandle cameraHandle, \
 				FILTER_STATUS *filterStatus);
 void closeDevice(cri_CameraHandle cameraHandle, cri_FilterHandle filterHandle);
 
-float getAutoExposure(const cri_CameraHandle cameraHandle, \
+mxArray* getAutoExposure(const cri_CameraHandle cameraHandle, \
 					const cri_FilterHandle filterHandle);
 
-
+mxArray* capture(const cri_CameraHandle cameraHandle, \
+				const cri_FilterHandle filterHandle, \
+				const double *wavelengths, const double *exposureTimes, \
+				const unsigned numWavelengths);
 
 //float getAutoExposureCube(const cri_CameraHandle cameraHandle, \
 //					const cri_FilterHandle filterHandle);

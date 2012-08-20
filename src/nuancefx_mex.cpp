@@ -558,7 +558,8 @@ void closeDevice(cri_CameraHandle cameraHandle, cri_FilterHandle filterHandle) {
 	closeFilter(filterHandle);
 }
 
-float getAutoExposure(const cri_CameraHandle cameraHandle, \
+// TODO: Not tested yet. Maybe add version for cube?
+mxArray* getAutoExposure(const cri_CameraHandle cameraHandle, \
 					const cri_FilterHandle filterHandle) {
 	cri_AutoExposeParameters parameters;
 	parameters.rule = cri_AutoExposeRuleBrightest;
@@ -569,7 +570,7 @@ float getAutoExposure(const cri_CameraHandle cameraHandle, \
 												&(parameters.maxExposureMs));
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
-		return 0.0f;
+		return NULL;
 	}
 
 //	TODO: Check if these should be 1 or 0, and sensor or image dims.
@@ -586,10 +587,132 @@ float getAutoExposure(const cri_CameraHandle cameraHandle, \
 									&exposure);
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
-		return 0.0f;
+		return NULL;
 	}
-	return exposure;
+	mxArray *mxarr = mxCreateDoubleScalar((double) exposure);
+	return mxarr;
 }
 
+
+void errorCallback(cri_ErrorCode errorCode) {
+	std::cout << "ERROR Callback." << std::endl;
+}
+
+void captureInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, \
+					cri_FilterState filterStates[], float exposureTimesMs[], \
+					unsigned int curImage, unsigned int totalToAcquire, \
+					unsigned int framesToAverage) {
+
+	std::cout << "captureInt8Callback Image #" \
+			<< curImage \
+			<< " out of " \
+			<< totalToAcquire \
+			<< " images." \
+			<< "  Wavelength = " \
+			<< images.wavelengths[curImage] \
+			<< std::endl;
+}
+
+void captureInt16Callback(cri_Int16Image images, cri_Int16Image planarImage, \
+					cri_FilterState filterStates[], float exposureTimesMs[], \
+					unsigned int curImage, unsigned int totalToAcquire, \
+					unsigned int framesToAverage) {
+
+	std::cout << "captureInt16Callback Image #" \
+			<< curImage \
+			<< " out of " \
+			<< totalToAcquire \
+			<< " images." \
+			<< "  Wavelength = " \
+			<< images.wavelengths[curImage] \
+			<< std::endl;
+}
+
+// TODO: Maybe write separate for single capture?
+mxArray* capture(const cri_CameraHandle cameraHandle, \
+				const cri_FilterHandle filterHandle, \
+				const double *wavelengths, const double *exposureTimes, \
+				const unsigned numWavelengths) {
+
+	int width;
+	int height;
+	cri_ErrorCode errorCode;
+	errorCode = cri_GetCameraImageSize(cameraHandle, &width, &height);
+	if (errorCode != cri_NoError){
+		handleErrorCode(errorCode);
+		return;
+	}
+
+	cri_FilterState filterStates[numWavelengths];
+	float exposureTimesFloat[numWavelengths];
+
+	for (unsigned wavelengthIndex = 0; wavelengthIndex < numWavelengths; \
+		++wavelengthIndex) {
+		filterStates[wavelengthIndex].wavelength = (float) wavelengths[wavelengthIndex];
+		filterStates[wavelengthIndex].reserved[0] = 0.0f;
+		filterStates[wavelengthIndex].reserved[1] = 0.0f;
+		exposureTimesMs[wavelengthIndex] = (float) exposureTimes[wavelengthIndex];
+	}
+
+	cri_ECameraBitDepth bitDepth;
+	cri_ErrorCode errorCode = cri_GetCameraBitDepth(handle, &bitDepth);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+
+	if (bitDepth == cri_CameraBitDepth8) {
+		cri_Int8Image cube;
+		cube.width = width;
+		cube.height = height;
+		mxArray *mxarr;
+		if (numWavelengths > 1) {
+			const mwSize ndims = 3;
+			const mwSize dims[]={height, width, numWavelengths};
+			mxarr = mxCreateNumericArray(ndim, dims, mxUINT8_CLASS, mxREAL);
+		} else {
+			mxarr = mxCreateNumericMatrix(height, width, mxUINT8_CLASS, mxREAL);
+		}
+		cube.image = (unsigned char *) mxGetData(mxarr);
+		cube.numberOfChannels = numWavelengths;
+		cube.wavelengths = new float[numWavelengths];
+
+		errorCode= cri_AcquireInt8Cube(cameraHandle, filterHandle, cube, \
+									filterStates, exposureTimesFloat, \
+									numWavelengths, \
+									CUBE_ACQUIRE_FRAMES_TO_AVERAGE,
+									true, captureInt8Callback, errorCallback);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		delete [] cube.wavelengths;
+		return mxarr;
+	} else if (bitDepth == cri_CameraBitDepth12) {
+		cri_Int16Image cube;
+		cube.width = width;
+		cube.height = height;
+		mxArray *mxarr;
+		if (numWavelengths > 1) {
+			const mwSize ndims = 3;
+			const mwSize dims[]={height, width, numWavelengths};
+			mxarr = mxCreateNumericArray(ndim, dims, mxUINT16_CLASS, mxREAL);
+		} else {
+			mxarr = mxCreateNumericMatrix(height, width, mxUINT16_CLASS, mxREAL);
+		}
+		cube.image = (short *) mxGetData(mxarr);
+		cube.numberOfChannels = numWavelengths;
+		cube.wavelengths = new float[numWavelengths];
+
+		errorCode= cri_AcquireInt16Cube(cameraHandle, filterHandle, cube, \
+									filterStates, exposureTimesFloat, \
+									numWavelengths, \
+									CUBE_ACQUIRE_FRAMES_TO_AVERAGE,
+									true, captureInt16Callback, errorCallback);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+		}
+		delete [] cube.wavelengths;
+		return mxarr;
+	}
+}
 
 }	/* namespace nuance */
