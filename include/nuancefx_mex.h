@@ -282,9 +282,6 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 				const double *wavelengths, const double *exposureTimes, \
 				const unsigned numWavelengths);
 
-//float getAutoExposureCube(const cri_CameraHandle cameraHandle, \
-//					const cri_FilterHandle filterHandle);
-
 //cri_Int8Image m_SnapImage;
 //cri_Int8Image m_StreamImages[ALLOWED_STREAM_COUNT];
 //cri_Int8Image m_AcquireCube;

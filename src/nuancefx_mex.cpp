@@ -4,6 +4,7 @@
  *      Author: igkiou
  */
 
+#include <iostream>
 #include "nuancefx_mex.h"
 
 namespace nuance {
@@ -595,7 +596,7 @@ mxArray* getAutoExposure(const cri_CameraHandle cameraHandle, \
 
 
 void errorCallback(cri_ErrorCode errorCode) {
-	std::cout << "ERROR Callback." << std::endl;
+	mexPrintf("errorCallback: %d\n.", errorCode);
 }
 
 void captureInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, \
@@ -603,14 +604,8 @@ void captureInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, \
 					unsigned int curImage, unsigned int totalToAcquire, \
 					unsigned int framesToAverage) {
 
-	std::cout << "captureInt8Callback Image #" \
-			<< curImage \
-			<< " out of " \
-			<< totalToAcquire \
-			<< " images." \
-			<< "  Wavelength = " \
-			<< images.wavelengths[curImage] \
-			<< std::endl;
+	mexPrintf("captureInt8Callback image # %u out of %u images, at wavelength %f.\n", \
+			curImage, totalToAcquire, images.wavelengths[curImage]);
 }
 
 void captureInt16Callback(cri_Int16Image images, cri_Int16Image planarImage, \
@@ -618,14 +613,16 @@ void captureInt16Callback(cri_Int16Image images, cri_Int16Image planarImage, \
 					unsigned int curImage, unsigned int totalToAcquire, \
 					unsigned int framesToAverage) {
 
-	std::cout << "captureInt16Callback Image #" \
-			<< curImage \
-			<< " out of " \
-			<< totalToAcquire \
-			<< " images." \
-			<< "  Wavelength = " \
-			<< images.wavelengths[curImage] \
-			<< std::endl;
+//	std::cout << "captureInt16Callback Image #" \
+//			<< curImage \
+//			<< " out of " \
+//			<< totalToAcquire \
+//			<< " images." \
+//			<< "  Wavelength = " \
+//			<< images.wavelengths[curImage] \
+//			<< std::endl;
+	mexPrintf("captureInt16Callback image # %u out of %u images, at wavelength %f.\n", \
+				curImage, totalToAcquire, images.wavelengths[curImage]);
 }
 
 // TODO: Maybe write separate for single capture?
@@ -640,39 +637,33 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 	errorCode = cri_GetCameraImageSize(cameraHandle, &width, &height);
 	if (errorCode != cri_NoError){
 		handleErrorCode(errorCode);
-		return;
+		return NULL;
 	}
 
-	cri_FilterState filterStates[numWavelengths];
-	float exposureTimesFloat[numWavelengths];
+	cri_FilterState *filterStates = new cri_FilterState[numWavelengths];
+	float *exposureTimesFloat = new float[numWavelengths];
 
 	for (unsigned wavelengthIndex = 0; wavelengthIndex < numWavelengths; \
 		++wavelengthIndex) {
 		filterStates[wavelengthIndex].wavelength = (float) wavelengths[wavelengthIndex];
 		filterStates[wavelengthIndex].reserved[0] = 0.0f;
 		filterStates[wavelengthIndex].reserved[1] = 0.0f;
-		exposureTimesMs[wavelengthIndex] = (float) exposureTimes[wavelengthIndex];
+		exposureTimesFloat[wavelengthIndex] = (float) exposureTimes[wavelengthIndex];
 	}
 
 	cri_ECameraBitDepth bitDepth;
-	cri_ErrorCode errorCode = cri_GetCameraBitDepth(handle, &bitDepth);
+	errorCode = cri_GetCameraBitDepth(cameraHandle, &bitDepth);
 	if (errorCode != cri_NoError) {
 		handleErrorCode(errorCode);
+		return NULL;
 	}
 
 	if (bitDepth == cri_CameraBitDepth8) {
 		cri_Int8Image cube;
 		cube.width = width;
 		cube.height = height;
-		mxArray *mxarr;
-		if (numWavelengths > 1) {
-			const mwSize ndims = 3;
-			const mwSize dims[]={height, width, numWavelengths};
-			mxarr = mxCreateNumericArray(ndim, dims, mxUINT8_CLASS, mxREAL);
-		} else {
-			mxarr = mxCreateNumericMatrix(height, width, mxUINT8_CLASS, mxREAL);
-		}
-		cube.image = (unsigned char *) mxGetData(mxarr);
+		cube.image = new unsigned char[width * height * numWavelengths];
+//		cube.image = (unsigned char *) mxGetData(mxarr);
 		cube.numberOfChannels = numWavelengths;
 		cube.wavelengths = new float[numWavelengths];
 
@@ -683,22 +674,39 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 									true, captureInt8Callback, errorCallback);
 		if (errorCode != cri_NoError) {
 			handleErrorCode(errorCode);
+			return NULL;
 		}
+
+		mxArray *mxarr;
+		if (numWavelengths > 1) {
+			const mwSize ndims = 3;
+			const mwSize dims[]={height, width, numWavelengths};
+			mxarr = mxCreateNumericArray(ndims, dims, mxUINT8_CLASS, mxREAL);
+		} else {
+			mxarr = mxCreateNumericMatrix(height, width, mxUINT8_CLASS, mxREAL);
+		}
+		unsigned char *mxarrData = (unsigned char *) mxGetData(mxarr);
+
+		for (int iterWavelength = 0; iterWavelength < (int) numWavelengths; ++iterWavelength) {
+			unsigned char *currWavelengthData = &mxarrData[width * height * iterWavelength];
+			for (int iterWidth = 0; iterWidth < width; ++iterWidth) {
+				for (int iterHeight = 0; iterHeight < height; ++iterHeight) {
+					currWavelengthData[height * iterWidth + iterHeight] = \
+							cube.image[iterHeight * width + iterWidth];
+				}
+			}
+		}
+
+		delete [] cube.image;
 		delete [] cube.wavelengths;
+		delete [] filterStates;
+		delete [] exposureTimesFloat;
 		return mxarr;
 	} else if (bitDepth == cri_CameraBitDepth12) {
 		cri_Int16Image cube;
 		cube.width = width;
 		cube.height = height;
-		mxArray *mxarr;
-		if (numWavelengths > 1) {
-			const mwSize ndims = 3;
-			const mwSize dims[]={height, width, numWavelengths};
-			mxarr = mxCreateNumericArray(ndim, dims, mxUINT16_CLASS, mxREAL);
-		} else {
-			mxarr = mxCreateNumericMatrix(height, width, mxUINT16_CLASS, mxREAL);
-		}
-		cube.image = (short *) mxGetData(mxarr);
+		cube.image = new short[width * height * numWavelengths];
 		cube.numberOfChannels = numWavelengths;
 		cube.wavelengths = new float[numWavelengths];
 
@@ -709,9 +717,36 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 									true, captureInt16Callback, errorCallback);
 		if (errorCode != cri_NoError) {
 			handleErrorCode(errorCode);
+			return NULL;
 		}
+
+		mxArray *mxarr;
+		if (numWavelengths > 1) {
+			const mwSize ndims = 3;
+			const mwSize dims[]={height, width, numWavelengths};
+			mxarr = mxCreateNumericArray(ndims, dims, mxUINT16_CLASS, mxREAL);
+		} else {
+			mxarr = mxCreateNumericMatrix(height, width, mxUINT16_CLASS, mxREAL);
+		}
+		short *mxarrData = (short *) mxGetData(mxarr);
+		for (int iterWavelength = 0; iterWavelength < (int) numWavelengths; ++iterWavelength) {
+			short *currWavelengthData = &mxarrData[width * height * iterWavelength];
+			for (int iterWidth = 0; iterWidth < width; ++iterWidth) {
+				for (int iterHeight = 0; iterHeight < height; ++iterHeight) {
+					currWavelengthData[height * iterWidth + iterHeight] = \
+							cube.image[iterHeight * width + iterWidth];
+				}
+			}
+		}
+
+		delete [] cube.image;
 		delete [] cube.wavelengths;
+		delete [] filterStates;
+		delete [] exposureTimesFloat;
 		return mxarr;
+	} else {
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported BITDEPTH: %d.", bitDepth);
+		return NULL;
 	}
 }
 
