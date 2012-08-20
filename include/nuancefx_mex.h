@@ -275,7 +275,9 @@ void checkDevice(const cri_CameraHandle cameraHandle, \
 void closeDevice(cri_CameraHandle cameraHandle, cri_FilterHandle filterHandle);
 
 mxArray* getAutoExposure(const cri_CameraHandle cameraHandle, \
-					const cri_FilterHandle filterHandle);
+						const cri_FilterHandle filterHandle, \
+						const double *wavelengths, \
+						const unsigned numWavelengths);
 
 mxArray* capture(const cri_CameraHandle cameraHandle, \
 				const cri_FilterHandle filterHandle, \

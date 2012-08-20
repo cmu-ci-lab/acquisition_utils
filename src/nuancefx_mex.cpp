@@ -386,7 +386,7 @@ void setFilterProperty(const cri_FilterHandle handle, \
 	double val = mxGetScalar(mxarr);
 	if(!strcasecmp(propertyName, "wavelength")) {
 		cri_FilterState filterState;
-		filterState.wavelength = (double) val;
+		filterState.wavelength = (float) val;
 		filterState.reserved[0] = 0.0f;
 		filterState.reserved[1] = 0.0f;
 		cri_ErrorCode errorCode = cri_SetFilterState(handle, filterState, true);
@@ -559,9 +559,12 @@ void closeDevice(cri_CameraHandle cameraHandle, cri_FilterHandle filterHandle) {
 	closeFilter(filterHandle);
 }
 
-// TODO: Not tested yet. Maybe add version for cube?
+// TODO: This gives different results from software.
+// TODO: Maybe add version for cube?
 mxArray* getAutoExposure(const cri_CameraHandle cameraHandle, \
-					const cri_FilterHandle filterHandle) {
+						const cri_FilterHandle filterHandle, \
+						const double *wavelengths, \
+						const unsigned numWavelengths) {
 	cri_AutoExposeParameters parameters;
 	parameters.rule = cri_AutoExposeRuleBrightest;
 	parameters.targetRatioFullScale = 1.0f;
@@ -575,22 +578,41 @@ mxArray* getAutoExposure(const cri_CameraHandle cameraHandle, \
 	}
 
 //	TODO: Check if these should be 1 or 0, and sensor or image dims.
-	parameters.roiOriginX = 1;
-	parameters.roiOriginY = 1;
+	parameters.roiOriginX = 0;
+	parameters.roiOriginY = 0;
 	errorCode = cri_GetCameraImageSize(cameraHandle, &(parameters.roiWidth), \
-									&(parameters.roiWidth));
+									&(parameters.roiHeight));
 
 	parameters.minAcceptableRatioFullScale = 0.0f;
 	parameters.maxAcceptableRatioFullScale = 0.0f;
 
-	float exposure;
-	errorCode = cri_AutoExposePlane(cameraHandle, filterHandle, parameters,
-									&exposure);
-	if (errorCode != cri_NoError) {
-		handleErrorCode(errorCode);
-		return NULL;
+	float *exposureTimesFloat = new float[numWavelengths];
+	cri_FilterState filterState;
+	for (unsigned wavelengthIndex = 0; wavelengthIndex < numWavelengths; \
+			++wavelengthIndex) {
+		filterState.wavelength = (float) wavelengths[wavelengthIndex];
+		filterState.reserved[0] = 0.0f;
+		filterState.reserved[1] = 0.0f;
+		errorCode = cri_SetFilterState(filterHandle, filterState, true);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return NULL;
+		}
+		errorCode = cri_AutoExposePlane(cameraHandle, filterHandle, parameters, \
+										&exposureTimesFloat[wavelengthIndex]);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return NULL;
+		}
 	}
-	mxArray *mxarr = mxCreateDoubleScalar((double) exposure);
+
+	mxArray *mxarr = mxCreateDoubleMatrix(numWavelengths, 1, mxREAL);
+	double *mxarrData = (double *) mxGetPr(mxarr);
+	for (unsigned wavelengthIndex = 0; wavelengthIndex < numWavelengths; \
+				++wavelengthIndex) {
+		mxarrData[wavelengthIndex] = (double) exposureTimesFloat[wavelengthIndex];
+	}
+	delete [] exposureTimesFloat;
 	return mxarr;
 }
 
@@ -604,8 +626,8 @@ void captureInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, \
 					unsigned int curImage, unsigned int totalToAcquire, \
 					unsigned int framesToAverage) {
 
-	mexPrintf("captureInt8Callback image # %u out of %u images, at wavelength %f.\n", \
-			curImage, totalToAcquire, images.wavelengths[curImage]);
+	mexPrintf("Uint8 im. %u/%u, wavelength %f nm, exp. time %f ms.\n", \
+			curImage + 1, totalToAcquire, images.wavelengths[curImage], exposureTimesMs[curImage]);
 }
 
 void captureInt16Callback(cri_Int16Image images, cri_Int16Image planarImage, \
@@ -621,8 +643,8 @@ void captureInt16Callback(cri_Int16Image images, cri_Int16Image planarImage, \
 //			<< "  Wavelength = " \
 //			<< images.wavelengths[curImage] \
 //			<< std::endl;
-	mexPrintf("captureInt16Callback image # %u out of %u images, at wavelength %f.\n", \
-				curImage, totalToAcquire, images.wavelengths[curImage]);
+	mexPrintf("Uint16 im. %u/%u, wavelength %f nm, exp. time %f ms.\n", \
+			curImage + 1, totalToAcquire, images.wavelengths[curImage], exposureTimesMs[curImage]);
 }
 
 // TODO: Maybe write separate for single capture?
@@ -734,7 +756,9 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 			for (int iterWidth = 0; iterWidth < width; ++iterWidth) {
 				for (int iterHeight = 0; iterHeight < height; ++iterHeight) {
 					currWavelengthData[height * iterWidth + iterHeight] = \
-							cube.image[iterHeight * width + iterWidth];
+							cube.image[iterWavelength \
+							          + iterWidth * numWavelengths \
+							          + iterHeight * width * numWavelengths];
 				}
 			}
 		}
