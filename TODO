@@ -1,6 +1,8 @@
--Add streaming support
--Change error handling to exception system
--Write cube version for autoexpose
--Find why autoexpose different when using my code and CRi app
--Fix bug of MATLAB crashing when performing "filter exercise"
+-Add streaming support.
+-Change error handling to exception system.
+-Write cube version for autoexpose.
+-Find why autoexpose different when using my code and CRi app.
+-Fix bug of MATLAB crashing when performing "filter exercise".
+-Better handling of running simultaneously MATLAB and CRi app.
+-Fix Makefile so that it does not delete intermediate object files.
 

@@ -14,9 +14,7 @@ MEXDIR = $(ROOTDIR)/mexfiles
 BINDIR = $(ROOTDIR)/bin
 INCLUDES += -I$(INCLUDEDIR)
 
-all: tests camera filter operations
-	
-tests: $(MEXDIR)/temp_mex.$(MEXEXT)
+all: camera filter operations
 
 camera: $(MEXDIR)/nuanceget.$(MEXEXT) $(MEXDIR)/nuanceset.$(MEXEXT) \
 		$(MEXDIR)/nuancequery.$(MEXEXT) $(MEXDIR)/nuancecheck.$(MEXEXT) \
