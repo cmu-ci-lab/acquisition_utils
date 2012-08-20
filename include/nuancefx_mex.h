@@ -222,7 +222,10 @@ inline void filterPropertyToString(const FILTER_PROPERTY property, \
 	}
 }
 
-
+/*
+ * TODO: Rewrite get/set wrappers to work directly with enums instead of string
+ * names. Move name handling to separate function, or maybe in mex file.
+ */
 /* Camera getters and setters. */
 mxArray* getCameraProperty(const cri_CameraHandle handle, \
 					const char* propertyName);
@@ -266,6 +269,7 @@ FILTER_STATUS checkFilter(const cri_FilterHandle handle);
 void closeFilter(cri_FilterHandle handle);
 
 /* Device access. */
+// TODO: Write mex wrappers for these.
 void queryDevice(unsigned *numCameras, unsigned *numFilters);
 void openDevice(cri_CameraHandle *cameraHandle, cri_FilterHandle *filterHandle);
 void checkDevice(const cri_CameraHandle cameraHandle, \
@@ -283,40 +287,6 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 				const cri_FilterHandle filterHandle, \
 				const double *wavelengths, const double *exposureTimes, \
 				const unsigned numWavelengths);
-
-//cri_Int8Image m_SnapImage;
-//cri_Int8Image m_StreamImages[ALLOWED_STREAM_COUNT];
-//cri_Int8Image m_AcquireCube;
-//
-//const int NUMBER_ACQUIRE_IMAGES = 11;
-//const int CUBE_ACQUIRE_FRAMES_TO_AVERAGE = 1;
-//const float DEFAULT_CUBE_ACQUIRE_EXPOSURE_MS = 100.0;
-//
-//
-//void SnapInt8Callback(cri_Int8Image image);
-//void AcquireCubeInt8Callback(cri_Int8Image images, cri_Int8Image planarImage, cri_FilterState filterStates[],
-//   float exposureTimesMs[],
-//   unsigned int curImage,
-//   unsigned int totalToAcquire,
-//   unsigned int framesToAverage);
-//void ErrorCallback(cri_ErrorCode errorCode);
-//bool OpenCamera();
-//bool OpenFilter();
-//void DisplayErrorMessage();
-//void DisplayCameraCharacteristics();
-//void DisplayFilterCharacteristics();
-//bool OpenDevices();
-//void ShutdownDevices();
-//void SetCameraBitDepthTo(cri_ECameraBitDepth depth);
-//void SetCameraBinningTo(cri_ECameraBinning binning);
-//void GetCameraImageSize(int * width, int * height);
-//void SetDisplayCameraSettings();
-//void WaitForCameraToBeReady();
-//void GetAutoExposeParameters(cri_AutoExposeParameters * parameters);
-//void AutoExposeForPlane();
-//void AutoExposeForCube();
-//void WaitForCubeAcquireToBeFinished();
-//void AcquireCube();
 
 }	/* namespace nuance */
 
