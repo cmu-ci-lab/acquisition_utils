@@ -447,10 +447,10 @@ public:
 
 	inline mxArray* autoexpose(const double *wavelengths, \
 								const unsigned numWavelengths) {
-		return getAutoExposure(m_camera.handle(), m_filter.handle(), wavelengths, numWavelenghts);
+		return getAutoExposure(m_camera.handle(), m_filter.handle(), wavelengths, numWavelengths);
 	}
 
-	~Device() { ~m_camera(); ~m_filter(); }
+	~Device() { m_camera.~Camera(); m_filter.~Filter(); }
 
 private:
 	Camera m_camera;

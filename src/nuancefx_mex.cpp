@@ -243,6 +243,8 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 		}
 		default:
 		{
+			char propertyName[cri_MAX_STRING_LENGTH];
+			cameraPropertyToString(property, propertyName);
 			mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported camera property: %s.", propertyName);
 			return NULL;
 		}
@@ -313,6 +315,8 @@ void setCameraProperty(const cri_CameraHandle handle, \
 		}
 		default:
 		{
+			char propertyName[cri_MAX_STRING_LENGTH];
+			cameraPropertyToString(property, propertyName);
 			mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported camera property: %s.", propertyName);
 		}
 	}
@@ -323,8 +327,8 @@ void setCameraProperty(const cri_CameraHandle handle, const mxArray* mxstruct) {
 	if (mxIsStruct(mxstruct)) {
 		unsigned numProperties = mxGetNumberOfFields(mxstruct);
 		for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
-			setCameraProperty(handle, mxGetFieldNameByNumber(mxstruct, iterProperty), \
-							stringToCameraProperty(mxGetFieldByNumber(mxstruct, 0, iterProperty)));
+			setCameraProperty(handle, stringToCameraProperty(mxGetFieldNameByNumber(mxstruct, iterProperty)), \
+							mxGetFieldByNumber(mxstruct, 0, iterProperty));
 		}
 	} else if (!mxIsEmpty(mxstruct)) {
 		mexErrMsgIdAndTxt(ERROR_ID, "For setting multiple attributes, a struct array must be provided.");
@@ -410,6 +414,8 @@ mxArray* getFilterProperty(const cri_FilterHandle handle, \
 		}
 		default:
 		{
+			char propertyName[cri_MAX_STRING_LENGTH];
+			filterPropertyToString(property, propertyName);
 			mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported filter property: %s.", propertyName);
 			return NULL;
 		}
@@ -456,6 +462,8 @@ void setFilterProperty(const cri_FilterHandle handle, \
 		}
 		default:
 		{
+			char propertyName[cri_MAX_STRING_LENGTH];
+			filterPropertyToString(property, propertyName);
 			mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported filter property: %s.", propertyName);
 		}
 	}
@@ -466,8 +474,8 @@ void setFilterProperty(const cri_FilterHandle handle, const mxArray* mxstruct) {
 	if (mxIsStruct(mxstruct)) {
 		unsigned numProperties = mxGetNumberOfFields(mxstruct);
 		for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
-			setFilterProperty(handle, mxGetFieldNameByNumber(mxstruct, iterProperty), \
-							stringToFilterProperty(mxGetFieldByNumber(mxstruct, 0, iterProperty)));
+			setFilterProperty(handle, stringToFilterProperty(mxGetFieldNameByNumber(mxstruct, iterProperty)), \
+							mxGetFieldByNumber(mxstruct, 0, iterProperty));
 		}
 	} else if (!mxIsEmpty(mxstruct)) {
 		mexErrMsgIdAndTxt(ERROR_ID, "For setting multiple attributes, a struct array must be provided.");
@@ -697,14 +705,6 @@ void captureInt16Callback(cri_Int16Image images, cri_Int16Image planarImage, \
 					unsigned int curImage, unsigned int totalToAcquire, \
 					unsigned int framesToAverage) {
 
-//	std::cout << "captureInt16Callback Image #" \
-//			<< curImage \
-//			<< " out of " \
-//			<< totalToAcquire \
-//			<< " images." \
-//			<< "  Wavelength = " \
-//			<< images.wavelengths[curImage] \
-//			<< std::endl;
 	mexPrintf("Uint16 im. %u/%u, wavelength %f nm, exp. time %f ms.\n", \
 			curImage + 1, totalToAcquire, images.wavelengths[curImage], exposureTimesMs[curImage]);
 }

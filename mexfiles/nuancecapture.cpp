@@ -26,7 +26,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 	const unsigned numWavelengths = mxGetNumberOfElements(prhs[2]);
 
 	if(mxGetNumberOfElements(prhs[3]) != numWavelengths) {
-		mexErrMsgIdAndTxt(ERROR_ID, "EXPOSURETIMES (fourth argument) must have the same length as WAVELENGTHS (third argument).\n");
+		mexErrMsgIdAndTxt(nuance::ERROR_ID, "EXPOSURETIMES (fourth argument) must have the same length as WAVELENGTHS (third argument).\n");
 	}
 
 	plhs[0] = nuance::capture(cameraHandle, filterHandle, \
