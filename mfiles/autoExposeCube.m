@@ -1,5 +1,9 @@
 function exposures = autoExposeCube(handle, wavelengths, singleExposure)
 
+if ((nargin < 2) || isempty(wavelengths)),
+	wavelengths = 420:10:720;
+end;
+
 if ((nargin < 3) || isempty(singleExposure)),
 	singleExposure = true;
 end;

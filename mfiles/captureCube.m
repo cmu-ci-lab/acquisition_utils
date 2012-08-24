@@ -1,5 +1,9 @@
 function cube = captureCube(handle, wavelengths, exposures, singleExposure)
 
+if ((nargin < 2) || isempty(wavelengths)),
+	wavelengths = 420:10:720;
+end;
+
 if ((nargin < 4) || isempty(singleExposure)),
 	singleExposure = true;
 end;
