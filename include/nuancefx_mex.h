@@ -15,13 +15,13 @@
 #include "mex.h"
 #include "matrix.h"
 
-#define ERROR_ID "MATLAB:nuancefx_mex"
-
 namespace nuance {
+
+const char * const ERROR_ID = "MATLAB:nuancefx_mex";
 
 const unsigned int CUBE_ACQUIRE_FRAMES_TO_AVERAGE = 1;
 
-typedef enum {
+typedef enum CAMERA_PROPERTY {
 	CAMERA_NAME = 0,
 	CAMERA_SERIAL = 1,
 	CAMERA_DRIVER = 2,
@@ -42,7 +42,71 @@ typedef enum {
 	CAMERA_PROPERTY_INVALID = -1
 } CAMERA_PROPERTY;
 
-typedef enum {
+/*
+ * TODO: Find better way to do these conversions, perhaps using bimap.
+ */
+inline void cameraPropertyToString(const CAMERA_PROPERTY property, \
+								char *propertyName) {
+
+	switch (property) {
+		case CAMERA_NAME: { strcpy(propertyName, "name"); return; }
+		case CAMERA_SERIAL: { strcpy(propertyName, "serial"); return; }
+		case CAMERA_DRIVER: { strcpy(propertyName, "driver"); return; }
+		case CAMERA_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
+		case CAMERA_SENSOR: { strcpy(propertyName, "sensor"); return; }
+		case CAMERA_SENSORSIZE: { strcpy(propertyName, "sensorsize"); return; }
+		case CAMERA_IMAGESIZE: { strcpy(propertyName, "imagesize"); return; }
+		case CAMERA_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); return; }
+		case CAMERA_BITDEPTH: { strcpy(propertyName, "bitdepth"); return; }
+//		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); return; }
+		case CAMERA_GAIN: { strcpy(propertyName, "gain"); return; }
+		case CAMERA_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); return; }
+		case CAMERA_EXPOSURE: { strcpy(propertyName, "exposure"); return; }
+		case CAMERA_BINNING: { strcpy(propertyName, "binning"); return; }
+		case CAMERA_OFFSETRANGE: { strcpy(propertyName, "offsetrange"); return; }
+		case CAMERA_OFFSET: { strcpy(propertyName, "offset"); return; }
+		default: { strcpy(propertyName, "unknown"); return; }
+	}
+}
+
+inline CAMERA_PROPERTY stringToCameraProperty(const char *propertyName) {
+
+	if(!strcasecmp(propertyName, "name")) {
+		return CAMERA_NAME;
+	} else if(!strcasecmp(propertyName, "serial")) {
+		return CAMERA_SERIAL;
+	} else if(!strcasecmp(propertyName, "driver")) {
+		return CAMERA_DRIVER;
+	} else if(!strcasecmp(propertyName, "firmware")) {
+		return CAMERA_FIRMWARE;
+	} else if(!strcasecmp(propertyName, "sensor")) {
+		return CAMERA_SENSOR;
+	} else if(!strcasecmp(propertyName, "sensorsize")) {
+		return CAMERA_SENSORSIZE;
+	} else if(!strcasecmp(propertyName, "imagesize")) {
+		return CAMERA_IMAGESIZE;
+	} else if(!strcasecmp(propertyName, "maxbitdepth")) {
+		return CAMERA_MAXBITDEPTH;
+	} else if(!strcasecmp(propertyName, "bitdepth")) {
+		return CAMERA_BITDEPTH;
+	} else if(!strcasecmp(propertyName, "gain")) {
+		return CAMERA_GAIN;
+	} else if(!strcasecmp(propertyName, "exposurerange")) {
+		return CAMERA_EXPOSURERANGE;
+	} else if(!strcasecmp(propertyName, "exposure")) {
+		return CAMERA_EXPOSURE;
+	} else if(!strcasecmp(propertyName, "binning")) {
+		return CAMERA_BINNING;
+	} else if(!strcasecmp(propertyName, "offsetrange")) {
+		return CAMERA_OFFSETRANGE;
+	} else if(!strcasecmp(propertyName, "offset")) {
+		return CAMERA_OFFSET;
+	} else {
+		return CAMERA_PROPERTY_INVALID;
+	}
+}
+
+typedef enum CAMERA_STATUS {
 	CAMERA_READY = 0,
 	CAMERA_BUSY = 1,
 	CAMERA_STREAMING = 2,
@@ -51,7 +115,7 @@ typedef enum {
 	CAMERA_STATUS_INVALID = -1
 } CAMERA_STATUS;
 
-typedef enum {
+typedef enum FILTER_PROPERTY {
 	FILTER_SERIAL = 0,
 	FILTER_FIRMWARE = 1,
 	FILTER_RANGE = 2,
@@ -61,14 +125,49 @@ typedef enum {
 	FILTER_PROPERTY_INVALID = -1
 } FILTER_PROPERTY;
 
-typedef enum {
+/*
+ * TODO: Find better way to do these conversions, perhaps using bimap.
+ */
+inline void filterPropertyToString(const FILTER_PROPERTY property, \
+								char *propertyName) {
+
+	switch (property) {
+		case FILTER_SERIAL: { strcpy(propertyName, "serial"); return; }
+		case FILTER_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
+		case FILTER_RANGE: { strcpy(propertyName, "range"); return; }
+		case FILTER_STEPSIZE: { strcpy(propertyName, "stepsize"); return; }
+		case FILTER_WAVELENGTH: { strcpy(propertyName, "wavelength"); return; }
+		default: { strcpy(propertyName, "unknown"); return; }
+	}
+}
+
+inline FILTER_PROPERTY stringToFilterProperty(const char *propertyName) {
+
+	if(!strcasecmp(propertyName, "serial")) {
+		return FILTER_SERIAL;
+	} else if(!strcasecmp(propertyName, "firmware")) {
+		return FILTER_FIRMWARE;
+	} else if(!strcasecmp(propertyName, "range")) {
+		return FILTER_RANGE;
+	} else if(!strcasecmp(propertyName, "stepsize")) {
+		return FILTER_STEPSIZE;
+	} else if(!strcasecmp(propertyName, "wavelength")) {
+		return FILTER_WAVELENGTH;
+	} else {
+		return FILTER_PROPERTY_INVALID;
+	}
+}
+
+typedef enum FILTER_STATUS {
 	FILTER_READY = 0,
 	FILTER_BUSY = 1,
 	FILTER_STATUS_LENGTH = 2,
 	FILTER_STATUS_INVALID = -1
 } FILTER_STATUS;
 
-// TODO: Maybe rewrite with cri_GetLastError?
+/*
+ * TODO: Maybe rewrite with cri_GetLastError?
+ */
 inline void handleErrorCode(const cri_ErrorCode errorCode) {
 
 	switch(errorCode) {
@@ -185,77 +284,41 @@ inline void handleErrorCode(const cri_ErrorCode errorCode) {
 	}
 }
 
-inline void cameraPropertyToString(const CAMERA_PROPERTY property, \
-								char *propertyName) {
-
-	switch (property) {
-		case CAMERA_NAME: { strcpy(propertyName, "name"); return; }
-		case CAMERA_SERIAL: { strcpy(propertyName, "serial"); return; }
-		case CAMERA_DRIVER: { strcpy(propertyName, "driver"); return; }
-		case CAMERA_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
-		case CAMERA_SENSOR: { strcpy(propertyName, "sensor"); return; }
-		case CAMERA_SENSORSIZE: { strcpy(propertyName, "sensorsize"); return; }
-		case CAMERA_IMAGESIZE: { strcpy(propertyName, "imagesize"); return; }
-		case CAMERA_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); return; }
-		case CAMERA_BITDEPTH: { strcpy(propertyName, "bitdepth"); return; }
-//		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); return; }
-		case CAMERA_GAIN: { strcpy(propertyName, "gain"); return; }
-		case CAMERA_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); return; }
-		case CAMERA_EXPOSURE: { strcpy(propertyName, "exposure"); return; }
-		case CAMERA_BINNING: { strcpy(propertyName, "binning"); return; }
-		case CAMERA_OFFSETRANGE: { strcpy(propertyName, "offsetrange"); return; }
-		case CAMERA_OFFSET: { strcpy(propertyName, "offset"); return; }
-		default: { strcpy(propertyName, "unknown"); return; }
-	}
-}
-
-inline void filterPropertyToString(const FILTER_PROPERTY property, \
-								char *propertyName) {
-
-	switch (property) {
-		case FILTER_SERIAL: { strcpy(propertyName, "serial"); return; }
-		case FILTER_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
-		case FILTER_RANGE: { strcpy(propertyName, "range"); return; }
-		case FILTER_STEPSIZE: { strcpy(propertyName, "stepsize"); return; }
-		case FILTER_WAVELENGTH: { strcpy(propertyName, "wavelength"); return; }
-		default: { strcpy(propertyName, "unknown"); return; }
-	}
-}
-
 /*
- * TODO: Rewrite get/set wrappers to work directly with enums instead of string
- * names. Move name handling to separate function, or maybe in mex file.
+ * TODO: Separate out name handling in case of multiple variants of
+ * getters/setters (maybe move in mex?).
  */
+
 /* Camera getters and setters. */
 mxArray* getCameraProperty(const cri_CameraHandle handle, \
-					const char* propertyName);
+						const CAMERA_PROPERTY property);
 
-mxArray* getCameraProperties(const cri_CameraHandle handle);
+mxArray* getCameraProperty(const cri_CameraHandle handle);
 
 void setCameraProperty(const cri_CameraHandle handle, \
-					const char* propertyName, \
+					const CAMERA_PROPERTY property, \
 					const mxArray* mxarr);
 
-void setCameraProperties(const cri_CameraHandle handle, \
-						const mxArray* mxstruct);
+void setCameraProperty(const cri_CameraHandle handle, const mxArray* mxstruct);
 
 /* Filter getters and setters. */
 mxArray* getFilterProperty(const cri_FilterHandle handle, \
-					const char* propertyName);
+						const FILTER_PROPERTY property);
 
-mxArray* getFilterProperties(const cri_FilterHandle handle);
+mxArray* getFilterProperty(const cri_FilterHandle handle);
 
 void setFilterProperty(const cri_FilterHandle handle, \
-					const char* propertyName, \
+					const FILTER_PROPERTY property, \
 					const mxArray* mxarr);
 
-void setFilterProperties(const cri_FilterHandle handle, \
-						const mxArray* mxstruct);
+void setFilterProperty(const cri_FilterHandle handle, const mxArray* mxstruct);
 
 /*
- * TODO: Rewrite access functions to also return void or mxArray*,
- * as in rest of interface.
+ * TODO: Maybe rewrite access functions to also return void or mxArray*,
+ * as in rest of interface? On the other hand, this would mean these can no
+ * longer be used in the classes above.
  */
+
 /* Camera access. */
 unsigned queryCamera();
 cri_CameraHandle openCamera();
@@ -268,8 +331,10 @@ cri_FilterHandle openFilter();
 FILTER_STATUS checkFilter(const cri_FilterHandle handle);
 void closeFilter(cri_FilterHandle handle);
 
+/*
+ * TODO: These probably not necessary, consider getting rid of.
+ */
 /* Device access. */
-// TODO: Write mex wrappers for these.
 void queryDevice(unsigned *numCameras, unsigned *numFilters);
 void openDevice(cri_CameraHandle *cameraHandle, cri_FilterHandle *filterHandle);
 void checkDevice(const cri_CameraHandle cameraHandle, \
@@ -278,6 +343,7 @@ void checkDevice(const cri_CameraHandle cameraHandle, \
 				FILTER_STATUS *filterStatus);
 void closeDevice(cri_CameraHandle cameraHandle, cri_FilterHandle filterHandle);
 
+/* Do some actual acquisition. */
 mxArray* getAutoExposure(const cri_CameraHandle cameraHandle, \
 						const cri_FilterHandle filterHandle, \
 						const double *wavelengths, \
@@ -287,6 +353,109 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 				const cri_FilterHandle filterHandle, \
 				const double *wavelengths, const double *exposureTimes, \
 				const unsigned numWavelengths);
+
+/*
+ * TODO: Maybe add an m_init flag to these classes?
+ */
+/* Simple classes using the above functions. */
+struct Camera {
+public:
+	Camera() { m_handle = openCamera(); }
+
+	inline mxArray* get(const CAMERA_PROPERTY property) const {
+		return getCameraProperty(m_handle, property);
+	}
+
+	inline mxArray* get() const {
+		return getCameraProperty(m_handle);
+	}
+
+	inline void set(const CAMERA_PROPERTY property, const mxArray* mxarr) const {
+		setCameraProperty(m_handle, property, mxarr);
+	}
+
+	inline void set(const mxArray* mxstruct) const {
+		setCameraProperty(m_handle, mxstruct);
+	}
+
+	inline cri_CameraHandle handle() const {
+		return m_handle;
+	}
+
+	inline CAMERA_STATUS status() const {
+		return checkCamera(m_handle);
+	}
+
+	~Camera() { closeCamera(m_handle); }
+
+private:
+	cri_CameraHandle m_handle;
+};
+
+struct Filter {
+public:
+	Filter() { m_handle = openFilter(); }
+
+	inline mxArray* get(const FILTER_PROPERTY property) const {
+		return getFilterProperty(m_handle, property);
+	}
+
+	inline mxArray* get() const {
+		return getFilterProperty(m_handle);
+	}
+
+	inline void set(const FILTER_PROPERTY property, const mxArray* mxarr) const {
+		setFilterProperty(m_handle, property, mxarr);
+	}
+
+	inline void set(const mxArray* mxstruct) const {
+		setFilterProperty(m_handle, mxstruct);
+	}
+
+	inline cri_FilterHandle handle() const {
+		return m_handle;
+	}
+
+	inline FILTER_STATUS status() const {
+		return checkFilter(m_handle);
+	}
+
+	~Filter() { closeFilter(m_handle); }
+
+private:
+	cri_FilterHandle m_handle;
+};
+
+struct Device {
+public:
+	Device() : m_camera(), m_filter() {	}
+
+	inline Camera& camera() {
+		return m_camera;
+	}
+
+	inline Camera& filter() {
+		return m_camera;
+	}
+
+	inline mxArray* acquire(const double *wavelengths, \
+							const double *exposureTimes, \
+							const unsigned numWavelengths) {
+		return capture(m_camera.handle(), m_filter.handle(), \
+					wavelengths, exposureTimes, numWavelengths);
+	}
+
+	inline mxArray* autoexpose(const double *wavelengths, \
+								const unsigned numWavelengths) {
+		return getAutoExposure(m_camera.handle(), m_filter.handle(), wavelengths, numWavelenghts);
+	}
+
+	~Device() { ~m_camera(); ~m_filter(); }
+
+private:
+	Camera m_camera;
+	Filter m_filter;
+};
 
 }	/* namespace nuance */
 

@@ -30,9 +30,10 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		const int lengthPropertyName = mxGetNumberOfElements(prhs[1]) + 1;
 		char* propertyName = (char *) mxMalloc(lengthPropertyName * sizeof(char));
 		mxGetString(prhs[1], propertyName, lengthPropertyName);
-		plhs[0] = nuance::getFilterProperty(handle, propertyName);
+		nuance::FILTER_PROPERTY property = nuance::stringToFilterProperty(propertyName);
+		plhs[0] = nuance::getFilterProperty(handle, property);
 		mxFree(propertyName);
 	} else {
-		plhs[0] = nuance::getFilterProperties(handle);
+		plhs[0] = nuance::getFilterProperty(handle);
 	}
 }
