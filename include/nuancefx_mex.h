@@ -17,6 +17,9 @@
 
 namespace nuance {
 
+/*
+ * Replace all casts to static_cast.
+ */
 const char * const ERROR_ID = "MATLAB:nuancefx_mex";
 
 const unsigned int CUBE_ACQUIRE_FRAMES_TO_AVERAGE = 1;
