@@ -31,6 +31,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[]) {
 		char* propertyName = (char *) mxMalloc(lengthPropertyName * sizeof(char));
 		mxGetString(prhs[1], propertyName, lengthPropertyName);
 		nuance::CAMERA_PROPERTY property = nuance::stringToCameraProperty(propertyName);
+//		printf("property %d\n", property);
 		nuance::setCameraProperty(handle, property, prhs[2]);
 	} else {
 		nuance::setCameraProperty(handle, prhs[1]);

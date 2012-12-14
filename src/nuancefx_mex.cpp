@@ -284,6 +284,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			if (errorCode != cri_NoError) {
 				handleErrorCode(errorCode);
 			}
+			break;
 		}
 		case CAMERA_GAIN:
 		{
@@ -291,6 +292,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			if (errorCode != cri_NoError) {
 				handleErrorCode(errorCode);
 			}
+			break;
 		}
 		case CAMERA_EXPOSURE:
 		{
@@ -298,6 +300,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			if (errorCode != cri_NoError) {
 				handleErrorCode(errorCode);
 			}
+			break;
 		}
 		case CAMERA_BINNING:
 		{
@@ -305,6 +308,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			if (errorCode != cri_NoError) {
 				handleErrorCode(errorCode);
 			}
+			break;
 		}
 		case CAMERA_OFFSET:
 		{
@@ -312,6 +316,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			if (errorCode != cri_NoError) {
 				handleErrorCode(errorCode);
 			}
+			break;
 		}
 		default:
 		{
@@ -459,6 +464,7 @@ void setFilterProperty(const cri_FilterHandle handle, \
 			if (errorCode != cri_NoError) {
 				handleErrorCode(errorCode);
 			}
+			break;
 		}
 		default:
 		{
