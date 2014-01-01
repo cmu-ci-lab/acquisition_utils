@@ -80,61 +80,61 @@ inline EdsUInt32 isoDoubleToEds(const double isoSpeedDouble) {
 	if (isoSpeedDouble == 0) {
 		return 0x00000000;
 	} else if (isoSpeedDouble == 50) {
+		return 0x00000040;
+	} else if (isoSpeedDouble == 100) {
+		return 0x00000048;
+	} else if (isoSpeedDouble == 125) {
+		return 0x0000004b;
+	} else if (isoSpeedDouble == 160) {
+		return 0x0000004d;
+	} else if (isoSpeedDouble == 200) {
+		return 0x00000050;
+	} else if (isoSpeedDouble == 250) {
+		return 0x00000053;
+	} else if (isoSpeedDouble == 320) {
+		return 0x00000055;
+	} else if (isoSpeedDouble == 400) {
+		return 0x00000058;
+	} else if (isoSpeedDouble == 500) {
+		return 0x0000005b;
+	} else if (isoSpeedDouble == 640) {
+		return 0x0000005d;
+	} else if (isoSpeedDouble == 800) {
+		return 0x00000060;
+	} else if (isoSpeedDouble == 1000) {
+		return 0x00000063;
+	} else if (isoSpeedDouble == 1250) {
+		return 0x00000065;
+	} else if (isoSpeedDouble == 1600) {
+		return 0x00000068;
+	} else if (isoSpeedDouble == 2000) {
+		return 0x0000006b;
+	} else if (isoSpeedDouble == 2500) {
+		return 0x0000006d;
+	} else if (isoSpeedDouble == 3200) {
+		return 0x00000070;
+	} else if (isoSpeedDouble == 4000) {
+		return 0x00000073;
+	} else if (isoSpeedDouble == 5000) {
+		return 0x00000075;
+	} else if (isoSpeedDouble == 6400) {
+		return 0x00000078;
+	} else if (isoSpeedDouble == 8000) {
+		return 0x0000007b;
+	} else if (isoSpeedDouble == 10000) {
+		return 0x0000007d;
+	} else if (isoSpeedDouble == 12800) {
+		return 0x00000080;
+	} else if (isoSpeedDouble == 25600) {
+		return 0x00000088;
+	} else if (isoSpeedDouble == 51200) {
+		return 0x00000090;
+	} else if (isoSpeedDouble == 102400) {
+		return 0x00000098;
+	} else {
+		return 0xffffffff;
+	}
 }
-
-
-0x00000040
-ISO 50
-0x00000048
-ISO 100
-0x0000004b
-ISO 125
-0x0000004d
-ISO 160
-0x00000050
-ISO 200
-0x00000053
-ISO 250
-0x00000055
-ISO 320
-0x00000058
-ISO 400
-0x0000005b
-ISO 500
-0x0000005d
-ISO 640
-0x00000060
-ISO 800
-0x00000063
-ISO 1000
-0x00000065
-ISO 1250
-0x00000068
-ISO 1600
-0x0000006b
-ISO 2000
-0x0000006d
-ISO 2500
-0x00000070
-ISO 3200
-0x00000073
-ISO 4000
-0x00000075
-ISO 5000
-0x00000078
-ISO 6400
-0x0000007b
-ISO 8000
-0x0000007d
-ISO 10000
-0x00000080
-ISO 12800
-0x00000088
-ISO 25600
-0x00000090
-ISO 51200
-0x00000098
-ISO 102400
 
 0x08
 1
