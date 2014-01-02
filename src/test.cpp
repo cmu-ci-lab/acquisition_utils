@@ -8,8 +8,8 @@
 #include "EDSDK.h"
 #include "EDSDKErrors.h"
 #include "EDSDKTypes.h"
+#include "canon_mex.h"
 #include <iostream>
-#include <bitset>
 #include <string>
 #include <cstdio>
 #include <unistd.h>
@@ -68,38 +68,6 @@ EdsError getFirstCamera(EdsCameraRef *camera) {
 //	EdsError err = EdsSetPropertyData(camera, kEdsPropID_Tv, 0 , sizeof(TvValue), &TvValue);
 //	return err;
 //}
-
-EdsError downloadImage(EdsDirectoryItemRef directoryItem) {
-	EdsError err = EDS_ERR_OK;
-	EdsStreamRef stream = NULL;
-
-	// Get directory item information
-	EdsDirectoryItemInfo dirItemInfo;
-	err = EdsGetDirectoryItemInfo(directoryItem, & dirItemInfo);
-
-	// Create file stream for transfer destination
-	if (err == EDS_ERR_OK) {
-		err = EdsCreateFileStream(dirItemInfo.szFileName, kEdsFileCreateDisposition_CreateAlways,
-								kEdsAccess_ReadWrite, &stream);
-	}
-
-	// Download image
-	if (err == EDS_ERR_OK) {
-		err = EdsDownload(directoryItem, dirItemInfo.size, stream);
-	}
-
-	// Issue notification that download is complete
-	if (err == EDS_ERR_OK) {
-		err = EdsDownloadComplete(directoryItem);
-	}
-
-	// Release stream
-	if ( stream != NULL) {
-		EdsRelease(stream);
-		stream = NULL;
-	}
-	return err;
-}
 
 //EdsError getVolume(EdsCameraRef camera, EdsVolumeRef * volume) {
 //	EdsError err = EDS_ERR_OK;
@@ -162,7 +130,7 @@ EdsError downloadImage(EdsDirectoryItemRef directoryItem) {
 //}
 
 EdsError takePicture(EdsCameraRef camera) {
-	return EdsSendCommand(camera, kEdsCameraCommand_TakePicture , 0);
+	return EdsSendCommand(camera, kEdsCameraCommand_TakePicture, 0);
 }
 
 //EdsError BulbStart(EdsCameraRef camera) {
@@ -264,14 +232,53 @@ EdsError takePicture(EdsCameraRef camera) {
 //	return err;
 //}
 //
+
+EdsError downloadImage(EdsDirectoryItemRef directoryItem) {
+	EdsError err = EDS_ERR_OK;
+	EdsStreamRef stream = NULL;
+
+	// Get directory item information
+	EdsDirectoryItemInfo dirItemInfo;
+	err = EdsGetDirectoryItemInfo(directoryItem, & dirItemInfo);
+
+	std::string str_path("C:\\Users\\igkiou\\img.cr2");
+	const char* ch_dest = str_path.c_str();
+
+	// Create file stream for transfer destination
+	if (err == EDS_ERR_OK) {
+//		err = EdsCreateFileStream(dirItemInfo.szFileName, kEdsFileCreateDisposition_CreateAlways, kEdsAccess_ReadWrite, &stream);
+		err = EdsCreateFileStream(ch_dest, kEdsFileCreateDisposition_CreateAlways,kEdsAccess_ReadWrite, &stream);
+	}
+
+	// Download image
+	if (err == EDS_ERR_OK) {
+		err = EdsDownload(directoryItem, dirItemInfo.size, stream);
+	}
+
+	// Issue notification that download is complete
+	if (err == EDS_ERR_OK) {
+//		std::cout << "Download complete." << std::endl;
+		err = EdsDownloadComplete(directoryItem);
+	}
+
+	// Release stream
+	if ( stream != NULL) {
+		EdsRelease(stream);
+		stream = NULL;
+	}
+	return err;
+}
+
 EdsError EDSCALLBACK handleObjectEvent(EdsObjectEvent event, EdsBaseRef object,
 									EdsVoid * context) {
 	// do something
 	switch(event) {
 		case kEdsObjectEvent_DirItemRequestTransfer:
+//			std::cout << "Downloading image" << std::endl;
 			downloadImage(object);
 			break;
 		default:
+//			std::cout << "Other event" << std::endl;
 			break;
 	}
 
@@ -333,97 +340,102 @@ int main() {
 		err = EdsOpenSession(camera);
 	}
 
-	EdsUInt32 driveMode;
-	driveMode = 0x00000004;
-	err = EdsSetPropertyData(camera, kEdsPropID_DriveMode, 0, sizeof(driveMode), &driveMode);
-	if (err != EDS_ERR_OK) {
-		std::cout << "error at property" << std::endl;
-	}
-	err = EdsGetPropertyData(camera, kEdsPropID_DriveMode, 0, sizeof(driveMode), &driveMode);
+	EdsUInt32 property;
+	property = canon::AEModeDoubleToEds(3);
+	err = EdsSetPropertyData(camera, kEdsPropID_AEMode, 0, sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_AEMode, 0, sizeof(property), &property);
 	if (err != EDS_ERR_OK) {
 		std::cout << "error at property" << std::endl;
 	} else {
-		std::cout << "drive mode set to " << driveMode;
-		printf(" %X\n", driveMode);
+		std::cout << "AE mode is set to " << canon::AEModeEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
 	}
-//	driveMode = 0x0064ff0f;
-//	err = EdsSetPropertyData(camera, kEdsPropID_ImageQuality, 0, sizeof(driveMode), &driveMode);
-	err = EdsGetPropertyData(camera, kEdsPropID_ImageQuality, 0, sizeof(driveMode), &driveMode);
+	property = canon::driveModeDoubleToEds(4);
+	err = EdsSetPropertyData(camera, kEdsPropID_DriveMode, 0, sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_DriveMode, 0, sizeof(property), &property);
 	if (err != EDS_ERR_OK) {
 		std::cout << "error at property" << std::endl;
 	} else {
-		std::bitset<32> driveModeBin(driveMode);
-		std::cout << "Image quality is set to " << driveMode << " " << driveModeBin;
-		printf(" %X\n", driveMode);
+		std::cout << "Drive mode is set to " << canon::driveModeEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
 	}
-	err = EdsGetPropertyData(camera, kEdsPropID_ISOSpeed, 0, sizeof(driveMode), &driveMode);
+	property = canon::imageQualityDoubleToEds(0);
+	err = EdsSetPropertyData(camera, kEdsPropID_ImageQuality, 0, sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_ImageQuality, 0, sizeof(property), &property);
 	if (err != EDS_ERR_OK) {
 		std::cout << "error at property" << std::endl;
 	} else {
-		std::bitset<32> driveModeBin(driveMode);
-		std::cout << "ISO quality is set to " << driveMode << " " << driveModeBin;
-		printf(" %X\n", driveMode);
+		std::cout << "Image quality is set to " << canon::imageQualityEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
 	}
-	err = EdsGetPropertyData(camera, kEdsPropID_Av, 0, sizeof(driveMode), &driveMode);
+	property = canon::isoSpeedDoubleToEds(100);
+	err = EdsSetPropertyData(camera, kEdsPropID_ISOSpeed, 0, sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_ISOSpeed, 0, sizeof(property), &property);
 	if (err != EDS_ERR_OK) {
 		std::cout << "error at property" << std::endl;
 	} else {
-		std::bitset<32> driveModeBin(driveMode);
-		std::cout << "Aperture value is set to " << driveMode << " " << driveModeBin;
-		printf(" %X\n", driveMode);
+		std::cout << "ISO quality is set to " << canon::isoSpeedEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
 	}
-	err = EdsGetPropertyData(camera, kEdsPropID_Tv, 0, sizeof(driveMode), &driveMode);
+	property = canon::apertureValueDoubleToEds(3.5);
+	err = EdsSetPropertyData(camera, kEdsPropID_Av, 0, sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_Av, 0, sizeof(property), &property);
 	if (err != EDS_ERR_OK) {
 		std::cout << "error at property" << std::endl;
 	} else {
-		std::bitset<32> driveModeBin(driveMode);
-		std::cout << "Shutter speed is set to " << driveMode << " " << driveModeBin;
-		printf(" %X\n", driveMode);
+		std::cout << "Aperture value is set to " << canon::apertureValueEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
+	}
+	property = canon::shutterSpeedDoubleToEds(0.001);
+	err = EdsSetPropertyData(camera, kEdsPropID_Tv, 0, sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_Tv, 0, sizeof(property), &property);
+	if (err != EDS_ERR_OK) {
+		std::cout << "error at property" << std::endl;
+	} else {
+		std::cout << "Shutter speed is set to " << canon::shutterSpeedEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
 	}
 
-	EdsUInt32 device;
-	err = EdsGetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0 , sizeof(device), &device);
-	// PC live view starts by setting the PC as the output device for the live view image.
-	if(err == EDS_ERR_OK) {
-		device |= kEdsEvfOutputDevice_TFT;
-		err = EdsSetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0 , sizeof(device), &device);
-	}
 	std::string empname = "";
 	std::cout << "Press key to continue:" << std::endl;
 	std::getline(std::cin, empname);
-	driveMode = 1;
-	err = EdsSetPropertyData(camera, kEdsPropID_Evf_Mode, 0, sizeof(driveMode), &driveMode);
-	std::cout << "Press key to continue:" << std::endl;
-	std::getline(std::cin, empname);
-//	driveMode = 1;
-//	err = Eds
+
+	property = canon::evfOutputDeviceDoubleToEds(1);
+	err = EdsSetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0 , sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0 , sizeof(property), &property);
+	if (err != EDS_ERR_OK) {
+		std::cout << "error at property" << std::endl;
+	} else {
+		std::cout << "Evf output device is set to " << canon::evfOutputDeviceEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
+	}
+	property = canon::evfModeDoubleToEds(1);
+	err = EdsSetPropertyData(camera, kEdsPropID_Evf_Mode, 0, sizeof(property), &property);
+	err = EdsGetPropertyData(camera, kEdsPropID_Evf_Mode, 0, sizeof(property), &property);
+	if (err != EDS_ERR_OK) {
+		std::cout << "error at property" << std::endl;
+	} else {
+		std::cout << "Evf mode is set to " << canon::evfOutputDeviceEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
+	}
+
+	property = kEdsSaveTo_Camera;
+	err = EdsSetPropertyData(camera, kEdsPropID_SaveTo, 0, sizeof(property), &property);
+//	EdsCapacity newCapacity = {0x7FFFFFFF, 0x100000, 1};
+//	err = EdsSetCapacity(camera, newCapacity);
 
 	for (int iter = 0; iter < 3; ++iter) {
 		std::cout << "iter" << iter << std::endl;
-		err = takePicture(camera);
 		if (err != EDS_ERR_OK) {
 			std::cout << "error at iter" << iter << std::endl;
 		}
 		std::cout << "Press key to continue:" << std::endl;
 		std::getline(std::cin, empname);
+		err = takePicture(camera);
 	}
 
-	driveMode = 0x00000000;
-	err = EdsSetPropertyData(camera, kEdsPropID_DriveMode, 0, sizeof(driveMode), &driveMode);
-	if (err != EDS_ERR_OK) {
-		std::cout << "error at property" << std::endl;
-	}
 	std::cout << "Press key to continue:" << std::endl;
 	std::getline(std::cin, empname);
-
-	driveMode = 0x00000004;
-	err = EdsSetPropertyData(camera, kEdsPropID_DriveMode, 0, sizeof(driveMode), &driveMode);
-	if (err != EDS_ERR_OK) {
-		std::cout << "error at property" << std::endl;
-	}
-	std::cout << "Press key to continue:" << std::endl;
-	std::getline(std::cin, empname);
-
 	err = EdsSendCommand(camera, kEdsCameraCommand_PressShutterButton, kEdsCameraCommand_ShutterButton_Completely_NonAF);
 
 	std::cout << "Press key to continue:" << std::endl;
@@ -432,10 +444,6 @@ int main() {
 
 	std::cout << "Press key to continue:" << std::endl;
 	std::getline(std::cin, empname);
-
-//	/////
-//	// do something
-//	////
 
 	// Close session with camera
 	if (err == EDS_ERR_OK) {
