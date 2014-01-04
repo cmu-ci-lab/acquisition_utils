@@ -13,6 +13,7 @@
 #include <string>
 #include <cstdio>
 #include <unistd.h>
+#include <windows.h>
 
 EdsError getFirstCamera(EdsCameraRef *camera) {
 	EdsError err = EDS_ERR_OK;
@@ -45,6 +46,43 @@ EdsError getFirstCamera(EdsCameraRef *camera) {
 }
 EdsError takePicture(EdsCameraRef camera) {
 	return EdsSendCommand(camera, kEdsCameraCommand_TakePicture, 0);
+}
+
+EdsUInt32 getNumberOfFiles_sub(EdsDirectoryItemRef directoryItem) {
+
+	EdsUInt32 numChildren;
+	EdsGetChildCount(directoryItem, &numChildren);
+	EdsDirectoryItemInfo directoryItemInfo;
+	EdsGetDirectoryItemInfo(directoryItem, &directoryItemInfo);
+//	printf("Now counting %s\n", directoryItemInfo.szFileName);
+	EdsUInt32 numFiles = 0;
+	EdsDirectoryItemRef childItem;
+	EdsDirectoryItemInfo childItemInfo;
+//	std::cout << "Number of children " << numChildren << std::endl;
+	for (int iter = 0; iter < numChildren; ++iter) {
+		EdsGetChildAtIndex(directoryItem, iter, &childItem);
+		EdsGetDirectoryItemInfo(childItem, &childItemInfo);
+//		printf("Now parsing %s\n", childItemInfo.szFileName);
+		if (childItemInfo.isFolder == true) {
+			numFiles += getNumberOfFiles_sub(childItem);
+		} else {
+			++numFiles;
+		}
+		EdsRelease(childItem);
+	}
+	return numFiles;
+}
+
+EdsUInt32 getNumberOfFiles(EdsCameraRef camera) {
+
+	EdsVolumeRef volume;
+	EdsGetChildAtIndex(camera, 0, &volume);
+	EdsDirectoryItemRef dcim;
+	EdsGetChildAtIndex(volume, 0 , &dcim);
+	EdsUInt32 numFiles = getNumberOfFiles_sub(dcim);
+	EdsRelease(dcim);
+	EdsRelease(volume);
+	return numFiles;
 }
 
 EdsError downloadImage(EdsDirectoryItemRef directoryItem) {
@@ -200,7 +238,7 @@ int main() {
 		std::cout << "Aperture value is set to " << canon::apertureValueEdsToDouble(property) << " " << property;
 		printf(" %X\n", property);
 	}
-	property = canon::shutterSpeedDoubleToEds(0.001);
+	property = canon::shutterSpeedDoubleToEds(1);
 	err = EdsSetPropertyData(camera, kEdsPropID_Tv, 0, sizeof(property), &property);
 	err = EdsGetPropertyData(camera, kEdsPropID_Tv, 0, sizeof(property), &property);
 	if (err != EDS_ERR_OK) {
@@ -235,11 +273,16 @@ int main() {
 
 	err = EdsSendCommand(camera, kEdsCameraCommand_PressShutterButton, kEdsCameraCommand_ShutterButton_Completely_NonAF);
 
-	std::string empname = "";
-	std::cout << "Press key to continue:" << std::endl;
-	std::getline(std::cin, empname);
+//	std::string empname = "";
+//	std::cout << "Press key to continue:" << std::endl;
+//	std::getline(std::cin, empname);
+	Sleep(20 * 1000);
+
 	err = EdsSendCommand(camera, kEdsCameraCommand_PressShutterButton, kEdsCameraCommand_ShutterButton_OFF);
 
+	EdsUInt32 numFiles = getNumberOfFiles(camera);
+	std::cout << "Number of files " << numFiles << " " << numFiles;
+	printf(" %X\n", numFiles);
 	// Close session with camera
 	if (err == EDS_ERR_OK) {
 		err = EdsCloseSession(camera);

@@ -37,7 +37,8 @@ typedef enum CAMERA_PROPERTY {
 	CAMERA_EVFOUTPUTDEVICE = 6,
 	CAMERA_EVFMODE = 7,
 	CAMERA_SAVETO = 8,
-	CAMERA_PROPERTY_LENGTH = 9,
+	CAMERA_AVAILABLESHOTS = 9,
+	CAMERA_PROPERTY_LENGTH = 10,
 	CAMERA_PROPERTY_INVALID = -1
 } CAMERA_PROPERTY;
 
@@ -56,6 +57,7 @@ inline void cameraPropertyToString(const CAMERA_PROPERTY property, \
 		case CAMERA_EVFOUTPUTDEVICE: { strcpy(propertyName, "evfoutputdevice"); return; }
 		case CAMERA_EVFMODE: { strcpy(propertyName, "evfmode"); return; }
 		case CAMERA_SAVETO: { strcpy(propertyName, "saveto"); return; }
+		case CAMERA_AVAILABLESHOTS: { strcpy(propertyName, "availableshots"); return; }
 		default: { strcpy(propertyName, "unknown"); return; }
 	}
 }
@@ -836,6 +838,7 @@ inline EdsUInt32 evfModeEdsToDouble(const EdsUInt32 evfMode) {
 	}
 }
 
+
 inline EdsUInt32 saveToDoubleToEds(const double saveToDouble) {
 	if (saveToDouble == 1) { /* camera */
 		return kEdsSaveTo_Camera;
@@ -848,6 +851,7 @@ inline EdsUInt32 saveToDoubleToEds(const double saveToDouble) {
 	}
 }
 
+
 inline EdsUInt32 saveToEdsToDouble(const EdsUInt32 saveTo) {
 	if (saveTo == kEdsSaveTo_Camera) { /* camera */
 		return 1;
@@ -858,6 +862,14 @@ inline EdsUInt32 saveToEdsToDouble(const EdsUInt32 saveTo) {
 	} else {
 		return -1;
 	}
+}
+
+inline EdsUInt32 availableShotsDoubleToEds(const double availableShotsDouble) {
+	return (EdsUInt32) availableShotsDouble;
+}
+
+inline double availableShotsEdsToDouble(const EdsUInt32 availableShots) {
+	return (double) availableShots;
 }
 
 typedef enum CAMERA_STATUS {

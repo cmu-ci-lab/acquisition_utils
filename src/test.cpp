@@ -13,6 +13,7 @@
 #include <string>
 #include <cstdio>
 #include <unistd.h>
+#include <windows.h>
 
 EdsError getFirstCamera(EdsCameraRef *camera) {
 	EdsError err = EDS_ERR_OK;
@@ -29,7 +30,7 @@ EdsError getFirstCamera(EdsCameraRef *camera) {
 			err = EDS_ERR_DEVICE_NOT_FOUND;
 		}
 	}
-	std::cout << "Cameras found:" << count << std::endl;
+	std::cout << "Cameras found " << count << std::endl;
 
 	// Get first camera retrieved
 	if (err == EDS_ERR_OK) {
@@ -44,19 +45,6 @@ EdsError getFirstCamera(EdsCameraRef *camera) {
 	return err;
 }
 
-//EdsError getTv(EdsCameraRef camera, EdsUInt32 *Tv) {
-//	EdsError err = EDS_ERR_OK;
-//
-//	EdsDataType dataType;
-//	EdsUInt32 dataSize;
-//	err = EdsGetPropertySize(camera, kEdsPropID_Tv, 0, &dataType, &dataSize);
-//	if (err == EDS_ERR_OK) {
-//		err = EdsGetPropertyData(camera, kEdsPropID_Tv, 0 , dataSize, Tv);
-//	}
-//	return err;
-//}
-//
-//
 //EdsError getTvDesc(EdsCameraRef camera, EdsPropertyDesc *TvDesc) {
 //	EdsError err = EDS_ERR_OK;
 //
@@ -64,174 +52,91 @@ EdsError getFirstCamera(EdsCameraRef *camera) {
 //	return err;
 //}
 //
-//EdsError setTv(EdsCameraRef camera, EdsUInt32 TvValue) {
-//	EdsError err = EdsSetPropertyData(camera, kEdsPropID_Tv, 0 , sizeof(TvValue), &TvValue);
-//	return err;
-//}
 
-//EdsError getVolume(EdsCameraRef camera, EdsVolumeRef * volume) {
-//	EdsError err = EDS_ERR_OK;
-//	EdsUInt32 count = 0;
-//
-//	// Get the number of camera volumes
-//	err = EdsGetChildCount(camera, &count);
-//	if (err == EDS_ERR_OK && count == 0) {
-//		err =EDS_ERR_DIR_NOT_FOUND;
-//	}
-//
-//	// Get initial volume
-//	if (err == EDS_ERR_OK) {
-//		err = EdsGetChildAtIndex(camera, 0, volume);
-//	}
-//	return err;
-//}
+EdsError getDCIMFolder(EdsVolumeRef volume, EdsDirectoryItemRef * directoryItem) {
+	EdsError err = EDS_ERR_OK;
+	EdsDirectoryItemRef dirItem = NULL;
+	EdsDirectoryItemInfo dirItemInfo;
+	EdsUInt32 count = 0;
 
+	// Get number of items under the volume
+	err = EdsGetChildCount(volume, &count);
+	if (err == EDS_ERR_OK && count == 0) {
+		err =EDS_ERR_DIR_NOT_FOUND;
+	}
+	std::cout << "Volume has " << count << " children." << std::endl;
 
-//EdsError getDCIMFolder(EdsVolumeRef volume, EdsDirectoryItemRef * directoryItem) {
-//	EdsError err = EDS_ERR_OK;
-//	EdsDirectoryItemRef dirItem = NULL;
-//	EdsDirectoryItemInfo dirItemInfo;
-//	EdsUInt32 count = 0;
-//
-//	// Get number of items under the volume
-//	err = EdsGetChildCount(volume, &count);
-//	if (err == EDS_ERR_OK && count == 0) {
-//		err =EDS_ERR_DIR_NOT_FOUND;
-//	}
-//
-//	// Get DCIM folder
-//	for (int i = 0; (i < count) && (err == EDS_ERR_OK); i++) {
-//		// Get the ith item under the specifed volume
-//		if (err == EDS_ERR_OK) {
-//			err = EdsGetChildAtIndex(volume, i , &dirItem);
-//		}
-//
-//		// Get retrieved item information
-//		if (err == EDS_ERR_OK) {
-//			err = EdsGetDirectoryItemInfo(dirItem, &dirItemInfo);
-//		}
-//
-//		// Indicates whether or not the retrieved item is a DCIM folder.
-//		if (err == EDS_ERR_OK) {
-//			if (stricmp(dirItemInfo.szFileName, "DCIM") == 0 &&
-//			dirItemInfo.isFolder == true) {
-//				directoryItem = &dirItem;
-//				break;
-//			}
-//		}
-//
-//		// Release retrieved item
-//		if (dirItem) {
-//			EdsRelease(dirItem);
-//			dirItem = NULL;
-//		}
-//	}
-//	return err;
-//}
+	// Get DCIM folder
+	for (int i = 0; (i < count) && (err == EDS_ERR_OK); i++) {
+		// Get the ith item under the specifed volume
+		if (err == EDS_ERR_OK) {
+			err = EdsGetChildAtIndex(volume, i , &dirItem);
+		}
+
+		// Get retrieved item information
+		if (err == EDS_ERR_OK) {
+			err = EdsGetDirectoryItemInfo(dirItem, &dirItemInfo);
+		}
+
+		// Indicates whether or not the retrieved item is a DCIM folder.
+		if (err == EDS_ERR_OK) {
+			printf("Now parsing %s\n", dirItemInfo.szFileName);
+			if (stricmp(dirItemInfo.szFileName, "DCIM") == 0 &&
+			dirItemInfo.isFolder == true) {
+				directoryItem = &dirItem;
+				break;
+			}
+		}
+
+		// Release retrieved item
+		if (dirItem) {
+			EdsRelease(dirItem);
+			dirItem = NULL;
+		}
+	}
+	return err;
+}
+
+EdsUInt32 getNumberOfFiles_sub(EdsDirectoryItemRef directoryItem) {
+
+	EdsUInt32 numChildren;
+	EdsGetChildCount(directoryItem, &numChildren);
+	EdsDirectoryItemInfo directoryItemInfo;
+	EdsGetDirectoryItemInfo(directoryItem, &directoryItemInfo);
+//	printf("Now counting %s\n", directoryItemInfo.szFileName);
+	EdsUInt32 numFiles = 0;
+	EdsDirectoryItemRef childItem;
+	EdsDirectoryItemInfo childItemInfo;
+//	std::cout << "Number of children " << numChildren << std::endl;
+	for (int iter = 0; iter < numChildren; ++iter) {
+		EdsGetChildAtIndex(directoryItem, iter, &childItem);
+		EdsGetDirectoryItemInfo(childItem, &childItemInfo);
+//		printf("Now parsing %s\n", childItemInfo.szFileName);
+		if (childItemInfo.isFolder == true) {
+			numFiles += getNumberOfFiles_sub(childItem);
+		} else {
+			++numFiles;
+		}
+		EdsRelease(childItem);
+	}
+	return numFiles;
+}
+
+EdsUInt32 getNumberOfFiles(EdsCameraRef camera) {
+
+	EdsVolumeRef volume;
+	EdsGetChildAtIndex(camera, 0, &volume);
+	EdsDirectoryItemRef dcim;
+	EdsGetChildAtIndex(volume, 0 , &dcim);
+	EdsUInt32 numFiles = getNumberOfFiles_sub(dcim);
+	EdsRelease(dcim);
+	EdsRelease(volume);
+	return numFiles;
+}
 
 EdsError takePicture(EdsCameraRef camera) {
 	return EdsSendCommand(camera, kEdsCameraCommand_TakePicture, 0);
 }
-
-//EdsError BulbStart(EdsCameraRef camera) {
-//	EdsError err;
-//	bool locked = false;
-//	err = EdsSendStatusCommand( camera, kEdsCameraStatusCommand_UILock, 0);
-//	if (err == EDS_ERR_OK) {
-//		locked = true;
-//	}
-//	if (err == EDS_ERR_OK) {
-//		err = EdsSendCommand( camera, kEdsCameraCommand_BulbStart, 0);
-//	}
-//	if (err != EDS_ERR_OK && locked) {
-//		err = EdsSendStatusCommand (camera, kEdsCameraStatusCommand_UIUnLock, 0);
-//	}
-//	return err;
-//}
-
-//EdsError BulbStop(EdsCameraRef camera) {
-//	EdsError err;
-//	err = EdsSendCommand( camera ,kEdsCameraCommand_BulbEnd, 0);
-//	EdsSendStatusCommand(camera, kEdsCameraStatusCommand_UIUnLock, 0);
-//	return err;
-//}
-//
-//EdsError startLiveview(EdsCameraRef camera) {
-//	EdsError err = EDS_ERR_OK;
-//	// Get the output device for the live view image
-//	EdsUInt32 device;
-//	err = EdsGetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0, sizeof(device), &device);
-//
-//	// PC live view starts by setting the PC as the output device for the live view image.
-//	if (err == EDS_ERR_OK) {
-//	device |= kEdsEvfOutputDevice_PC;
-//	err = EdsSetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0, sizeof(device), &device);
-//	}
-//	// A property change event notification is issued from the camera if property settings are made successfully.
-//	// Start downloading of the live view image once the property change notification arrives.
-//	return err;
-//}
-//
-//EdsError downloadEvfData(EdsCameraRef camera) {
-//	EdsError err = EDS_ERR_OK;
-//	EdsStreamRef stream = NULL;
-//	EdsEvfImageRef evfImage = NULL;
-//
-//	// Create memory stream.
-//	err = EdsCreateMemoryStream( 0, &stream);
-//
-//	// Create EvfImageRef.
-//	if (err == EDS_ERR_OK) {
-//		err = EdsCreateEvfImageRef(stream, &evfImage);
-//	}
-//
-//	// Download live view image data.
-//	if (err == EDS_ERR_OK) {
-//		err = EdsDownloadEvfImage(camera, evfImage);
-//	}
-//
-//	// Get the incidental data of the image.
-//	if (err == EDS_ERR_OK) {
-//		// Get the zoom ratio
-//		EdsUInt32 zoom;
-//		EdsGetPropertyData(evfImage, kEdsPropID_Evf_ZoomPosition, 0, sizeof(zoom), &zoom);
-//
-//		// Get the focus and zoom border position
-//		EdsPoint point;
-//		EdsGetPropertyData(evfImage, kEdsPropID_Evf_ZoomPosition, 0, sizeof(point), &point);
-//	}
-//
-//	//
-//	// Display image
-//	//
-//	// Release stream
-//	if (stream != NULL) {
-//		EdsRelease(stream);
-//		stream = NULL;
-//	}
-//
-//	// Release evfImage
-//	if (evfImage != NULL) {
-//		EdsRelease(evfImage);
-//		evfImage = NULL;
-//	}
-//	return err;
-//}
-//
-//EdsError endLiveview(EdsCameraRef camera) {
-//	EdsError err = EDS_ERR_OK;
-//	// Get the output device for the live view image
-//	EdsUInt32 device;
-//	err = EdsGetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0, sizeof(device), &device);
-//
-//	// PC live view ends if the PC is disconnected from the live view image output device.
-//	if (err == EDS_ERR_OK) {
-//		device &= ~kEdsEvfOutputDevice_PC;
-//		err = EdsSetPropertyData(camera, kEdsPropID_Evf_OutputDevice, 0 , sizeof(device), &device);
-//	}
-//	return err;
-//}
-//
 
 EdsError downloadImage(EdsDirectoryItemRef directoryItem) {
 	EdsError err = EDS_ERR_OK;
@@ -418,6 +323,17 @@ int main() {
 		std::cout << "Evf mode is set to " << canon::evfOutputDeviceEdsToDouble(property) << " " << property;
 		printf(" %X\n", property);
 	}
+	err = EdsGetPropertyData(camera, kEdsPropID_AvailableShots, 0, sizeof(property), &property);
+	if (err != EDS_ERR_OK) {
+		std::cout << "error at property" << std::endl;
+	} else {
+		std::cout << "Available shots " << canon::availableShotsEdsToDouble(property) << " " << property;
+		printf(" %X\n", property);
+	}
+	EdsUInt32 numFiles;
+	numFiles = getNumberOfFiles(camera);
+	std::cout << "Number of files " << numFiles << " " << numFiles;
+	printf(" %X\n", numFiles);
 
 	property = kEdsSaveTo_Camera;
 	err = EdsSetPropertyData(camera, kEdsPropID_SaveTo, 0, sizeof(property), &property);
@@ -432,7 +348,18 @@ int main() {
 		std::cout << "Press key to continue:" << std::endl;
 		std::getline(std::cin, empname);
 		err = takePicture(camera);
+		err = EdsGetPropertyData(camera, kEdsPropID_AvailableShots, 0, sizeof(property), &property);
+		if (err != EDS_ERR_OK) {
+			std::cout << "error at property" << std::endl;
+		} else {
+			std::cout << "Available shots " << canon::availableShotsEdsToDouble(property) << " " << property;
+			printf(" %X\n", property);
+		}
 	}
+
+	numFiles = getNumberOfFiles(camera);
+	std::cout << "Number of files " << numFiles << " " << numFiles;
+	printf(" %X\n", numFiles);
 
 	std::cout << "Press key to continue:" << std::endl;
 	std::getline(std::cin, empname);
@@ -441,9 +368,10 @@ int main() {
 	std::cout << "Press key to continue:" << std::endl;
 	std::getline(std::cin, empname);
 	err = EdsSendCommand(camera, kEdsCameraCommand_PressShutterButton, kEdsCameraCommand_ShutterButton_OFF);
-
-	std::cout << "Press key to continue:" << std::endl;
-	std::getline(std::cin, empname);
+	Sleep(20 * 1000);
+	numFiles = getNumberOfFiles(camera);
+	std::cout << "Number of files " << numFiles << " " << numFiles;
+	printf(" %X\n", numFiles);
 
 	// Close session with camera
 	if (err == EDS_ERR_OK) {

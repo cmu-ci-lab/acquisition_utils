@@ -122,6 +122,18 @@ mxArray* getCameraProperty(const EdsCameraRef handle, \
 			mxArray *mxarr = mxCreateDoubleScalar(saveToEdsToDouble(saveTo));
 			return mxarr;
 		}
+		case CAMERA_AVAILABLESHOTS: {
+			EdsUInt32 availableShots;
+			EdsError errorCode = EdsGetPropertyData(handle,
+													kEdsPropID_AvailableShots, 0,
+													sizeof(availableShots),
+													&availableShots);
+			if (errorCode != EDS_ERR_OK) {
+				handleErrorCode(errorCode);
+			}
+			mxArray *mxarr = mxCreateDoubleScalar(saveToEdsToDouble(availableShots));
+			return mxarr;
+		}
 		default: {
 			char propertyName[canon_MAX_STRING_LENGTH];
 			cameraPropertyToString(property, propertyName);
