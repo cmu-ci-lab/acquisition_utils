@@ -5,8 +5,8 @@
  *      Author: igkiou
  */
 
-#ifndef _NUANCEFX_MEX_H_
-#define _NUANCEFX_MEX_H_
+#ifndef NUANCEFX_MEX_H_
+#define NUANCEFX_MEX_H_
 
 #include <math.h>
 #include <string.h>
@@ -446,8 +446,8 @@ public:
 		return m_camera;
 	}
 
-	inline Camera& filter() {
-		return m_camera;
+	inline Filter& filter() {
+		return m_filter;
 	}
 
 	inline mxArray* acquire(const double *wavelengths, \
