@@ -1,4 +1,6 @@
-MATLABDIR = "/cygdrive/c/Program Files (x86)/MATLAB/R2011a"
+
+
+MATLABDIR = "/cygdrive/c/Program Files (x86)/MATLAB/R2013b"
 NUANCEDIR = "/cygdrive/c/Program Files (x86)/CRi/MSI_API_1.0.0/"
 
 MATLABARCH = win32

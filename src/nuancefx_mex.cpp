@@ -761,7 +761,7 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 									filterStates, exposureTimesFloat, \
 									numWavelengths, \
 									CUBE_ACQUIRE_FRAMES_TO_AVERAGE,
-									true, captureInt8Callback, errorCallback);
+									true, NULL, errorCallback);
 		if (errorCode != cri_NoError) {
 			handleErrorCode(errorCode);
 			return NULL;
@@ -804,7 +804,7 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 									filterStates, exposureTimesFloat, \
 									numWavelengths, \
 									CUBE_ACQUIRE_FRAMES_TO_AVERAGE,
-									true, captureInt16Callback, errorCallback);
+									true, NULL, errorCallback);
 		if (errorCode != cri_NoError) {
 			handleErrorCode(errorCode);
 			return NULL;
@@ -839,6 +839,216 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 	} else {
 		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported BITDEPTH: %d.", bitDepth);
 		return NULL;
+	}
+}
+
+typedef void (*cri_Int8StreamCallback) (cri_Int8Image image);
+
+void streamInt8Callback(cri_Int8Image image) {
+
+	mexPrintf("Uint8 single im., wavelength %f nm.\n", image.wavelengths[0]);
+}
+
+void streamInt16Callback(cri_Int16Image image) {
+
+	mexPrintf("Uint16 single im., wavelength %f nm.\n", image.wavelengths[0]);
+}
+
+// TODO: Maybe write separate for single capture?
+mxArray* captureSingle(const cri_CameraHandle cameraHandle, \
+				const cri_FilterHandle filterHandle, \
+				const double wavelength, const double exposureTime) {
+
+	int width;
+	int height;
+	cri_ErrorCode errorCode;
+	errorCode = cri_GetCameraImageSize(cameraHandle, &width, &height);
+	if (errorCode != cri_NoError){
+		handleErrorCode(errorCode);
+		return NULL;
+	}
+
+	cri_FilterState filterState;
+	filterState.wavelength = (float) wavelength;
+	filterState.reserved[0] = 0.0f;
+	filterState.reserved[1] = 0.0f;
+	errorCode = cri_SetFilterState(filterHandle, filterState, true);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+
+	errorCode = cri_SetCameraExposureMs(cameraHandle, (float) exposureTime);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+	}
+
+	cri_ECameraBitDepth bitDepth;
+	errorCode = cri_GetCameraBitDepth(cameraHandle, &bitDepth);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+		return NULL;
+	}
+
+	if (bitDepth == cri_CameraBitDepth8) {
+		mxArray *mxarr = mxCreateNumericMatrix(width, height, mxUINT8_CLASS, mxREAL);
+
+		cri_Int8Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new unsigned char[width * height];
+		image.image = (unsigned char *) mxGetData(mxarr);
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		errorCode= cri_SnapInt8(cameraHandle, &image, true, NULL);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return NULL;
+		}
+
+		delete image.wavelengths;
+		return mxarr;
+	} else if (bitDepth == cri_CameraBitDepth12) {
+		mxArray *mxarr = mxCreateNumericMatrix(width, height, mxUINT16_CLASS, mxREAL);
+
+		cri_Int16Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new short[width * height];
+		image.image = (short *) mxGetData(mxarr);
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		errorCode= cri_SnapInt16(cameraHandle, &image, true, NULL);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return NULL;
+		}
+
+		delete image.wavelengths;
+		return mxarr;
+	} else {
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported BITDEPTH: %d.", bitDepth);
+		return NULL;
+	}
+}
+
+mxArray* snap(const cri_CameraHandle cameraHandle) {
+
+	int width;
+	int height;
+	cri_ErrorCode errorCode;
+	errorCode = cri_GetCameraImageSize(cameraHandle, &width, &height);
+	if (errorCode != cri_NoError){
+		handleErrorCode(errorCode);
+		return NULL;
+	}
+
+	cri_ECameraBitDepth bitDepth;
+	errorCode = cri_GetCameraBitDepth(cameraHandle, &bitDepth);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+		return NULL;
+	}
+
+	if (bitDepth == cri_CameraBitDepth8) {
+		mxArray *mxarr = mxCreateNumericMatrix(width, height, mxUINT8_CLASS, mxREAL);
+
+		cri_Int8Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new unsigned char[width * height];
+		image.image = (unsigned char *) mxGetData(mxarr);
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		errorCode= cri_SnapInt8(cameraHandle, &image, true, NULL);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return NULL;
+		}
+
+		delete image.wavelengths;
+		return mxarr;
+	} else if (bitDepth == cri_CameraBitDepth12) {
+		mxArray *mxarr = mxCreateNumericMatrix(width, height, mxUINT16_CLASS, mxREAL);
+
+		cri_Int16Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new short[width * height];
+		image.image = (short *) mxGetData(mxarr);
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		errorCode= cri_SnapInt16(cameraHandle, &image, true, NULL);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return NULL;
+		}
+
+		delete image.wavelengths;
+		return mxarr;
+	} else {
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported BITDEPTH: %d.", bitDepth);
+		return NULL;
+	}
+}
+
+
+void snapPreAlloc(const cri_CameraHandle cameraHandle, const mxArray *mxarr) {
+
+	int width;
+	int height;
+	cri_ErrorCode errorCode;
+	errorCode = cri_GetCameraImageSize(cameraHandle, &width, &height);
+	if (errorCode != cri_NoError){
+		handleErrorCode(errorCode);
+		return;
+	}
+
+	cri_ECameraBitDepth bitDepth;
+	errorCode = cri_GetCameraBitDepth(cameraHandle, &bitDepth);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+		return;
+	}
+
+	if (bitDepth == cri_CameraBitDepth8) {
+		cri_Int8Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new unsigned char[width * height];
+		image.image = (unsigned char *) mxGetData(mxarr);
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		errorCode= cri_SnapInt8(cameraHandle, &image, true, NULL);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return;
+		}
+
+		delete image.wavelengths;
+	} else if (bitDepth == cri_CameraBitDepth12) {
+		cri_Int16Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new short[width * height];
+		image.image = (short *) mxGetData(mxarr);
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		errorCode= cri_SnapInt16(cameraHandle, &image, true, NULL);
+		if (errorCode != cri_NoError) {
+			handleErrorCode(errorCode);
+			return;
+		}
+
+		delete image.wavelengths;
+	} else {
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported BITDEPTH: %d.", bitDepth);
+		return;
 	}
 }
 

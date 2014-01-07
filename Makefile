@@ -25,7 +25,10 @@ filter: $(MEXDIR)/filterget.$(MEXEXT) $(MEXDIR)/filterset.$(MEXEXT) \
 		$(MEXDIR)/filteropen.$(MEXEXT) $(MEXDIR)/filterclose.$(MEXEXT)
 		
 operations: $(MEXDIR)/nuanceautoexpose.$(MEXEXT) \
-			$(MEXDIR)/nuancecapture.$(MEXEXT)
+			$(MEXDIR)/nuancecapture.$(MEXEXT) \
+			$(MEXDIR)/nuancecapturesingle.$(MEXEXT) \
+			$(MEXDIR)/nuancesnap.$(MEXEXT) \
+			$(MEXDIR)/nuancesnapprealloc.$(MEXEXT)
 
 ## test mex executable 
 $(MEXDIR)/%.$(MEXEXT): $(MEXDIR)/%.o $(SRCDIR)/nuancefx_mex.o  
