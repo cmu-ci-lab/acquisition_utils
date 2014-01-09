@@ -995,6 +995,78 @@ mxArray* snap(const cri_CameraHandle cameraHandle) {
 	}
 }
 
+mxArray* snapFrames(const cri_CameraHandle cameraHandle, const unsigned numFrames) {
+
+	int width;
+	int height;
+	cri_ErrorCode errorCode;
+	errorCode = cri_GetCameraImageSize(cameraHandle, &width, &height);
+	if (errorCode != cri_NoError){
+		handleErrorCode(errorCode);
+		return NULL;
+	}
+
+	cri_ECameraBitDepth bitDepth;
+	errorCode = cri_GetCameraBitDepth(cameraHandle, &bitDepth);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+		return NULL;
+	}
+
+	if (bitDepth == cri_CameraBitDepth8) {
+		const mwSize ndims = 3;
+		const mwSize dims[]={width, height, numFrames};
+		mxArray *mxarr = mxCreateNumericArray(ndims, dims, mxUINT8_CLASS, mxREAL);
+		unsigned char *mxdata = (unsigned char *) mxGetData(mxarr);
+
+		cri_Int8Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new unsigned char[width * height];
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		for (unsigned iterFrame = 0; iterFrame < numFrames; ++iterFrame) {
+			image.image = &mxdata[iterFrame * width * height];
+			errorCode= cri_SnapInt8(cameraHandle, &image, true, NULL);
+			if (errorCode != cri_NoError) {
+				handleErrorCode(errorCode);
+				return NULL;
+			}
+		}
+
+		delete image.wavelengths;
+		return mxarr;
+	} else if (bitDepth == cri_CameraBitDepth12) {
+		const mwSize ndims = 3;
+		const mwSize dims[]={width, height, numFrames};
+		mxArray *mxarr = mxCreateNumericArray(ndims, dims, mxUINT16_CLASS, mxREAL);
+		short *mxdata = (short *) mxGetData(mxarr);
+
+		cri_Int16Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new short[width * height];
+		image.image = (short *) mxGetData(mxarr);
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		for (unsigned iterFrame = 0; iterFrame < numFrames; ++iterFrame) {
+			image.image = &mxdata[iterFrame * width * height];
+			errorCode= cri_SnapInt16(cameraHandle, &image, true, NULL);
+			if (errorCode != cri_NoError) {
+				handleErrorCode(errorCode);
+				return NULL;
+			}
+		}
+
+		delete image.wavelengths;
+		return mxarr;
+	} else {
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported BITDEPTH: %d.", bitDepth);
+		return NULL;
+	}
+}
 
 void snapPreAlloc(const cri_CameraHandle cameraHandle, const mxArray *mxarr) {
 
@@ -1043,6 +1115,71 @@ void snapPreAlloc(const cri_CameraHandle cameraHandle, const mxArray *mxarr) {
 		if (errorCode != cri_NoError) {
 			handleErrorCode(errorCode);
 			return;
+		}
+
+		delete image.wavelengths;
+	} else {
+		mexErrMsgIdAndTxt(ERROR_ID, "Unknown or unsupported BITDEPTH: %d.", bitDepth);
+		return;
+	}
+}
+
+void snapPreAllocFrames(const cri_CameraHandle cameraHandle, const mxArray *mxarr,
+						const unsigned numFrames) {
+
+	int width;
+	int height;
+	cri_ErrorCode errorCode;
+	errorCode = cri_GetCameraImageSize(cameraHandle, &width, &height);
+	if (errorCode != cri_NoError){
+		handleErrorCode(errorCode);
+		return;
+	}
+
+	cri_ECameraBitDepth bitDepth;
+	errorCode = cri_GetCameraBitDepth(cameraHandle, &bitDepth);
+	if (errorCode != cri_NoError) {
+		handleErrorCode(errorCode);
+		return;
+	}
+
+	if (bitDepth == cri_CameraBitDepth8) {
+		cri_Int8Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new unsigned char[width * height];
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		unsigned char *mxdata = (unsigned char *) mxGetData(mxarr);
+
+		for (unsigned iterFrame = 0; iterFrame < numFrames; ++iterFrame) {
+			image.image = &mxdata[iterFrame * width * height];
+			errorCode= cri_SnapInt8(cameraHandle, &image, true, NULL);
+			if (errorCode != cri_NoError) {
+				handleErrorCode(errorCode);
+				return;
+			}
+		}
+
+		delete image.wavelengths;
+	} else if (bitDepth == cri_CameraBitDepth12) {
+		cri_Int16Image image;
+		image.width = width;
+		image.height = height;
+//		image.image = new short[width * height];
+		image.numberOfChannels = 1;
+		image.wavelengths = new float;
+
+		short *mxdata = (short *) mxGetData(mxarr);
+
+		for (unsigned iterFrame = 0; iterFrame < numFrames; ++iterFrame) {
+			image.image = &mxdata[iterFrame * width * height];
+			errorCode= cri_SnapInt16(cameraHandle, &image, true, NULL);
+			if (errorCode != cri_NoError) {
+				handleErrorCode(errorCode);
+				return;
+			}
 		}
 
 		delete image.wavelengths;

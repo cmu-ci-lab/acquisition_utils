@@ -28,7 +28,9 @@ operations: $(MEXDIR)/nuanceautoexpose.$(MEXEXT) \
 			$(MEXDIR)/nuancecapture.$(MEXEXT) \
 			$(MEXDIR)/nuancecapturesingle.$(MEXEXT) \
 			$(MEXDIR)/nuancesnap.$(MEXEXT) \
-			$(MEXDIR)/nuancesnapprealloc.$(MEXEXT)
+			$(MEXDIR)/nuancesnapframes.$(MEXEXT) \
+			$(MEXDIR)/nuancesnapprealloc.$(MEXEXT) \
+			$(MEXDIR)/nuancesnappreallocframes.$(MEXEXT)
 
 ## test mex executable 
 $(MEXDIR)/%.$(MEXEXT): $(MEXDIR)/%.o $(SRCDIR)/nuancefx_mex.o  
