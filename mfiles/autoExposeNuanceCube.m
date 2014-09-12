@@ -1,4 +1,4 @@
 function exposures = autoExposeNuanceCube(handle, varargin)
 
-wavelengths = 420:10:720;
+wavelengths = getNuanceWavelengths;
 exposures = autoExposeCube(handle, wavelengths, varargin{:});

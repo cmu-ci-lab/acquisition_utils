@@ -18,7 +18,8 @@
 namespace nuance {
 
 /*
- * Replace all casts to static_cast.
+ * TODO: Replace all casts to static_cast.
+ * TODO: Maybe enforce const-ness better.
  */
 const char * const ERROR_ID = "MATLAB:nuancefx_mex";
 

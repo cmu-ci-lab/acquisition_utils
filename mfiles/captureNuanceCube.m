@@ -1,4 +1,4 @@
 function cube = captureNuanceCube(handle, varargin)
 
-wavelengths = 420:10:720;
+wavelengths = getNuanceWavelengths;
 cube = captureCube(handle, wavelengths, varargin{:});
