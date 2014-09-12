@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "CriAcquireAPI.h"
+
 #include "mex.h"
 #include "matrix.h"
 
@@ -357,6 +358,19 @@ mxArray* capture(const cri_CameraHandle cameraHandle, \
 				const cri_FilterHandle filterHandle, \
 				const double *wavelengths, const double *exposureTimes, \
 				const unsigned numWavelengths);
+
+mxArray* captureSingle(const cri_CameraHandle cameraHandle, \
+				const cri_FilterHandle filterHandle, \
+				const double wavelength, const double exposureTime);
+
+mxArray* snap(const cri_CameraHandle cameraHandle);
+
+mxArray* snapFrames(const cri_CameraHandle cameraHandle, const unsigned numFrames);
+
+void snapPreAlloc(const cri_CameraHandle cameraHandle, const mxArray *mxarr);
+
+void snapPreAllocFrames(const cri_CameraHandle cameraHandle, const mxArray *mxarr,
+						const unsigned numFrames);
 
 /*
  * TODO: Maybe add an m_init flag to these classes?

@@ -14,4 +14,4 @@ if (numel(exposure) ~= 1),
 	exposure = exposure(1);
 end;
 
-im = nuancecapture(handle.camera, handle.filter, wavelength, exposure);
+im = imflip(nuancecapturesingle(handle.camera, handle.filter, wavelength, exposure)');
