@@ -5,7 +5,7 @@
  */
 
 #include <iostream>
-#include "nuancefx_mex.h"
+#include "nuance.h"
 
 namespace nuance {
 

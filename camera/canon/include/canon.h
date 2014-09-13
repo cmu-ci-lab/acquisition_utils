@@ -5,8 +5,8 @@
  *      Author: igkiou
  */
 
-#ifndef CANON_MEX_H_
-#define CANON_MEX_H_
+#ifndef CANON_H_
+#define CANON_H_
 
 #include <math.h>
 #include <string.h>
@@ -945,4 +945,4 @@ void releaseShutter(const EdsCameraRef handle);
 
 }	/* namespace canon */
 
-#endif /* CANON_MEX_H_ */
+#endif /* CANON_H_ */

@@ -1,12 +1,12 @@
 /*
- * canon_mex.cpp
+ * canon.cpp
  *
  *  Created on: Dec 17, 2013
  *      Author: igkiou
  */
 
 #include <iostream>
-#include "canon_mex.h"
+#include "canon.h"
 
 namespace canon {
 
