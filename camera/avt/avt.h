@@ -20,8 +20,8 @@ public:
 			m_uid(uid),
 			m_address(),
 			m_camera() {
-		tPvErr errorCode = PvCameraOpen(m_uid, Flags, &m_camera);
-		mexAssert)
+		tPvErr errorCode = PvCameraOpen(m_uid, ePvAccessMaster, &m_camera);
+		mexAssert(errorCode == ePvErrSuccess);
 	}
 
 

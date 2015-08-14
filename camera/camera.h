@@ -8,7 +8,7 @@
 #ifndef CAMERA_INCLUDE_CAMERA_H_
 #define CAMERA_INCLUDE_CAMERA_H_
 
-#include "mex_utils.h""
+#include "mex_utils.h"
 
 namespace camera {
 
