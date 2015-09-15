@@ -18,12 +18,12 @@ public:
 	TranslationStageInterface(const TranslationStageInterface& other) = delete;
 	TranslationStageInterface& operator=(const TranslationStageInterface& other) = delete;
 
-	virtual bool isOpen() = 0;
+	virtual bool isOpen() const = 0;
 	virtual void home() = 0;
 	virtual void moveto(double locationInMm) = 0;
 	virtual void translate(double distanceInMm) = 0;
 	virtual void moveinc(double distanceInMm, int numMovements) = 0;
-	virtual double getpos() = 0;
+	virtual double getpos() const = 0;
 
 	virtual ~TranslationStageInterface() = default;
 };
@@ -35,12 +35,12 @@ public:
 	RotationStageInterface(const RotationStageInterface& other) = delete;
 	RotationStageInterface& operator=(const RotationStageInterface& other) = delete;
 
-	virtual bool isOpen() = 0;
+	virtual bool isOpen() const = 0;
 	virtual void home() = 0;
 	virtual void moveto(double angleInDegrees) = 0;
 	virtual void rotate(double angleInDegrees) = 0;
 	virtual void moveinc(double angleInDegrees, int numMovements) = 0;
-	virtual double getpos() = 0;
+	virtual double getpos() const = 0;
 
 	virtual ~RotationStageInterface() = default;
 };
