@@ -4,15 +4,18 @@
 # USE_PROFILE = 1
 # DEBUG_MODE = 1
 
-include gcc.mk
-
 ROOTDIR = .
 INCLUDEDIR = $(ROOTDIR)/include
 LIBDIR = $(ROOTDIR)/lib
 SRCDIR = $(ROOTDIR)/src
 MEXDIR = $(ROOTDIR)/mexfiles
 BINDIR = $(ROOTDIR)/bin
-INCLUDES += -I$(INCLUDEDIR)
+INCLUDES = -I$(INCLUDEDIR)
+LDFLAGS =
+
+include gcc.mk
+include matlab.mk
+include nuance.mk
 
 all: camera filter operations
 

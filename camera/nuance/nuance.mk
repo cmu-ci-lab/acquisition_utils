@@ -1,0 +1,10 @@
+NUANCEDIR = "/cygdrive/c/Program Files (x86)/CRi/MSI_API_1.0.0/"
+#NUANCELIBS = 
+ifdef DEBUG_MODE
+	NUANCELIBS = -L$(NUANCEDIR)/bin/Debug/ -lCriMsiAPI-1_00D
+else
+	NUANCELIBS = -L$(NUANCEDIR)/bin/Release/ -lCriMsiAPI-1_00
+endif
+NUANCEINCLUDE = -I$(NUANCEDIR)/include
+INCLUDES += $(NUANCEINCLUDE)
+LDFLAGS += $(NUANCELIBS)
