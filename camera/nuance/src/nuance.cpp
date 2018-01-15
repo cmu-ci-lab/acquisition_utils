@@ -7,13 +7,13 @@
 #include <iostream>
 #include "nuance.h"
 
-namespace nuance {
+namespace ph {
 
 mxArray* getCameraProperty(const cri_CameraHandle handle, \
-							const CAMERA_PROPERTY property) {
+							const PH_PROPERTY property) {
 
 	switch(property) {
-		case CAMERA_NAME:
+		case PH_NAME:
 		{
 			char name[cri_MAX_STRING_LENGTH];
 			char serial[cri_MAX_STRING_LENGTH];
@@ -32,7 +32,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateString(name);
 			return mxarr;
 		}
-		case CAMERA_SERIAL:
+		case PH_SERIAL:
 		{
 			char name[cri_MAX_STRING_LENGTH];
 			char serial[cri_MAX_STRING_LENGTH];
@@ -51,7 +51,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateString(serial);
 			return mxarr;
 		}
-		case CAMERA_DRIVER:
+		case PH_DRIVER:
 		{
 			char name[cri_MAX_STRING_LENGTH];
 			char serial[cri_MAX_STRING_LENGTH];
@@ -70,7 +70,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateString(driver);
 			return mxarr;
 		}
-		case CAMERA_FIRMWARE:
+		case PH_FIRMWARE:
 		{
 			char name[cri_MAX_STRING_LENGTH];
 			char serial[cri_MAX_STRING_LENGTH];
@@ -89,7 +89,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateString(firmware);
 			return mxarr;
 		}
-		case CAMERA_SENSOR:
+		case PH_SENSOR:
 		{
 			char name[cri_MAX_STRING_LENGTH];
 			char serial[cri_MAX_STRING_LENGTH];
@@ -108,7 +108,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateString(sensor);
 			return mxarr;
 		}
-		case CAMERA_SENSORSIZE:
+		case PH_SENSORSIZE:
 		{
 			int width;
 			int height;
@@ -122,7 +122,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			data[1] = (double) height;
 			return mxarr;
 		}
-		case CAMERA_IMAGESIZE:
+		case PH_IMAGESIZE:
 		{
 			int width;
 			int height;
@@ -136,7 +136,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			data[1] = (double) height;
 			return mxarr;
 		}
-		case CAMERA_MAXBITDEPTH:
+		case PH_MAXBITDEPTH:
 		{
 			char name[cri_MAX_STRING_LENGTH];
 			char serial[cri_MAX_STRING_LENGTH];
@@ -155,7 +155,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateDoubleScalar((double) maxBitDepth);
 			return mxarr;
 		}
-		case CAMERA_BITDEPTH:
+		case PH_BITDEPTH:
 		{
 			cri_ECameraBitDepth bitDepth;
 			cri_ErrorCode errorCode = cri_GetCameraBitDepth(handle, &bitDepth);
@@ -173,7 +173,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 	//		data[0] = (double) lowRange;
 	//		data[1] = (double) highRange;
 		}
-		case CAMERA_GAIN:
+		case PH_GAIN:
 		{
 			cri_ECameraGain gain;
 			cri_ErrorCode errorCode = cri_GetCameraGain(handle, &gain);
@@ -183,7 +183,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateDoubleScalar((double) gain);
 			return mxarr;
 		}
-		case CAMERA_EXPOSURERANGE:
+		case PH_EXPOSURERANGE:
 		{
 			float lowRange;
 			float highRange;
@@ -197,7 +197,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			data[1] = (double) highRange;
 			return mxarr;
 		}
-		case CAMERA_EXPOSURE:
+		case PH_EXPOSURE:
 		{
 			float exposure;
 			cri_ErrorCode errorCode = cri_GetCameraExposureMs(handle, &exposure);
@@ -207,7 +207,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateDoubleScalar((double) exposure);
 			return mxarr;
 		}
-		case CAMERA_BINNING:
+		case PH_BINNING:
 		{
 			cri_ECameraBinning binning;
 			cri_ErrorCode errorCode = cri_GetCameraBinning(handle, &binning);
@@ -217,7 +217,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			mxArray *mxarr = mxCreateDoubleScalar((double) binning);
 			return mxarr;
 		}
-		case CAMERA_OFFSETRANGE:
+		case PH_OFFSETRANGE:
 		{
 			int lowRange;
 			int highRange;
@@ -231,7 +231,7 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 			data[1] = (double) highRange;
 			return mxarr;
 		}
-		case CAMERA_OFFSET:
+		case PH_OFFSET:
 		{
 			int offset;
 			cri_ErrorCode errorCode = cri_GetCameraOffset(handle, &offset);
@@ -253,17 +253,17 @@ mxArray* getCameraProperty(const cri_CameraHandle handle, \
 
 mxArray* getCameraProperty(const cri_CameraHandle handle) {
 
-	unsigned numProperties = (unsigned) CAMERA_PROPERTY_LENGTH;
+	unsigned numProperties = (unsigned) PH_PROPERTY_LENGTH;
 	mxArray *mxstruct;
 	char **propertyNames = (char **) \
 			mxMalloc(numProperties * sizeof(*propertyNames));
 	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
 		propertyNames[iterProperty] = (char *) mxMalloc(cri_MAX_STRING_LENGTH * sizeof(char));
-		cameraPropertyToString((CAMERA_PROPERTY) iterProperty, propertyNames[iterProperty]);
+		cameraPropertyToString((PH_PROPERTY) iterProperty, propertyNames[iterProperty]);
 	}
 	mxstruct = mxCreateStructMatrix(1, 1, numProperties, (const char **) propertyNames);
 	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
-		mxSetFieldByNumber(mxstruct, 0, iterProperty, getCameraProperty(handle, (CAMERA_PROPERTY) iterProperty));
+		mxSetFieldByNumber(mxstruct, 0, iterProperty, getCameraProperty(handle, (PH_PROPERTY) iterProperty));
 	}
 	for (unsigned iterProperty = 0; iterProperty < numProperties; ++iterProperty) {
 		mxFree((void *) propertyNames[iterProperty]);
@@ -273,12 +273,12 @@ mxArray* getCameraProperty(const cri_CameraHandle handle) {
 }
 
 void setCameraProperty(const cri_CameraHandle handle, \
-							const CAMERA_PROPERTY property, \
+							const PH_PROPERTY property, \
 							const mxArray* mxarr) {
 
 	double val = mxGetScalar(mxarr);
 	switch(property) {
-		case CAMERA_BITDEPTH:
+		case PH_BITDEPTH:
 		{
 			cri_ErrorCode errorCode = cri_SetCameraBitDepth(handle, (cri_ECameraBitDepth) val);
 			if (errorCode != cri_NoError) {
@@ -286,7 +286,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			}
 			break;
 		}
-		case CAMERA_GAIN:
+		case PH_GAIN:
 		{
 			cri_ErrorCode errorCode = cri_SetCameraGain(handle, (cri_ECameraGain) val);
 			if (errorCode != cri_NoError) {
@@ -294,7 +294,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			}
 			break;
 		}
-		case CAMERA_EXPOSURE:
+		case PH_EXPOSURE:
 		{
 			cri_ErrorCode errorCode = cri_SetCameraExposureMs(handle, (float) val);
 			if (errorCode != cri_NoError) {
@@ -302,7 +302,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			}
 			break;
 		}
-		case CAMERA_BINNING:
+		case PH_BINNING:
 		{
 			cri_ErrorCode errorCode = cri_SetCameraBinning(handle, (cri_ECameraBinning) val);
 			if (errorCode != cri_NoError) {
@@ -310,7 +310,7 @@ void setCameraProperty(const cri_CameraHandle handle, \
 			}
 			break;
 		}
-		case CAMERA_OFFSET:
+		case PH_OFFSET:
 		{
 			cri_ErrorCode errorCode = cri_SetCameraOffset(handle, (int) val);
 			if (errorCode != cri_NoError) {

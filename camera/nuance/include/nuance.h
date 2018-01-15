@@ -16,7 +16,7 @@
 #include "mex.h"
 #include "matrix.h"
 
-namespace nuance {
+namespace ph {
 
 /*
  * TODO: Replace all casts to static_cast.
@@ -26,88 +26,88 @@ const char * const ERROR_ID = "MATLAB:nuancefx_mex";
 
 const unsigned int CUBE_ACQUIRE_FRAMES_TO_AVERAGE = 1;
 
-typedef enum CAMERA_PROPERTY {
-	CAMERA_NAME = 0,
-	CAMERA_SERIAL = 1,
-	CAMERA_DRIVER = 2,
-	CAMERA_FIRMWARE = 3,
-	CAMERA_SENSOR = 4,
-	CAMERA_SENSORSIZE = 5,
-	CAMERA_IMAGESIZE = 6,
-	CAMERA_MAXBITDEPTH = 7,
-	CAMERA_BITDEPTH = 8,
+typedef enum PH_PROPERTY {
+	PH_NAME = 0,
+	PH_SERIAL = 1,
+	PH_DRIVER = 2,
+	PH_FIRMWARE = 3,
+	PH_SENSOR = 4,
+	PH_SENSORSIZE = 5,
+	PH_IMAGESIZE = 6,
+	PH_MAXBITDEPTH = 7,
+	PH_BITDEPTH = 8,
 //	CAMERA_GAINRANGE = 9,
-	CAMERA_GAIN = 9,
-	CAMERA_EXPOSURERANGE = 10,
-	CAMERA_EXPOSURE = 11,
-	CAMERA_BINNING = 12,
-	CAMERA_OFFSETRANGE = 13,
-	CAMERA_OFFSET = 14,
-	CAMERA_PROPERTY_LENGTH = 15,
-	CAMERA_PROPERTY_INVALID = -1
-} CAMERA_PROPERTY;
+	PH_GAIN = 9,
+	PH_EXPOSURERANGE = 10,
+	PH_EXPOSURE = 11,
+	PH_BINNING = 12,
+	PH_OFFSETRANGE = 13,
+	PH_OFFSET = 14,
+	PH_PROPERTY_LENGTH = 15,
+	PH_PROPERTY_INVALID = -1
+} PH_PROPERTY;
 
 /*
  * TODO: Find better way to do these conversions, perhaps using bimap.
  */
-inline void cameraPropertyToString(const CAMERA_PROPERTY property, \
+inline void cameraPropertyToString(const PH_PROPERTY property, \
 								char *propertyName) {
 
 	switch (property) {
-		case CAMERA_NAME: { strcpy(propertyName, "name"); return; }
-		case CAMERA_SERIAL: { strcpy(propertyName, "serial"); return; }
-		case CAMERA_DRIVER: { strcpy(propertyName, "driver"); return; }
-		case CAMERA_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
-		case CAMERA_SENSOR: { strcpy(propertyName, "sensor"); return; }
-		case CAMERA_SENSORSIZE: { strcpy(propertyName, "sensorsize"); return; }
-		case CAMERA_IMAGESIZE: { strcpy(propertyName, "imagesize"); return; }
-		case CAMERA_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); return; }
-		case CAMERA_BITDEPTH: { strcpy(propertyName, "bitdepth"); return; }
+		case PH_NAME: { strcpy(propertyName, "name"); return; }
+		case PH_SERIAL: { strcpy(propertyName, "serial"); return; }
+		case PH_DRIVER: { strcpy(propertyName, "driver"); return; }
+		case PH_FIRMWARE: { strcpy(propertyName, "firmware"); return; }
+		case PH_SENSOR: { strcpy(propertyName, "sensor"); return; }
+		case PH_SENSORSIZE: { strcpy(propertyName, "sensorsize"); return; }
+		case PH_IMAGESIZE: { strcpy(propertyName, "imagesize"); return; }
+		case PH_MAXBITDEPTH: { strcpy(propertyName, "maxbitdepth"); return; }
+		case PH_BITDEPTH: { strcpy(propertyName, "bitdepth"); return; }
 //		case CAMERA_GAINRANGE: { strcpy(propertyName, "gainrange"); return; }
-		case CAMERA_GAIN: { strcpy(propertyName, "gain"); return; }
-		case CAMERA_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); return; }
-		case CAMERA_EXPOSURE: { strcpy(propertyName, "exposure"); return; }
-		case CAMERA_BINNING: { strcpy(propertyName, "binning"); return; }
-		case CAMERA_OFFSETRANGE: { strcpy(propertyName, "offsetrange"); return; }
-		case CAMERA_OFFSET: { strcpy(propertyName, "offset"); return; }
+		case PH_GAIN: { strcpy(propertyName, "gain"); return; }
+		case PH_EXPOSURERANGE: { strcpy(propertyName, "exposurerange"); return; }
+		case PH_EXPOSURE: { strcpy(propertyName, "exposure"); return; }
+		case PH_BINNING: { strcpy(propertyName, "binning"); return; }
+		case PH_OFFSETRANGE: { strcpy(propertyName, "offsetrange"); return; }
+		case PH_OFFSET: { strcpy(propertyName, "offset"); return; }
 		default: { strcpy(propertyName, "unknown"); return; }
 	}
 }
 
-inline CAMERA_PROPERTY stringToCameraProperty(const char *propertyName) {
+inline PH_PROPERTY stringToCameraProperty(const char *propertyName) {
 
 	if(!strcasecmp(propertyName, "name")) {
-		return CAMERA_NAME;
+		return PH_NAME;
 	} else if(!strcasecmp(propertyName, "serial")) {
-		return CAMERA_SERIAL;
+		return PH_SERIAL;
 	} else if(!strcasecmp(propertyName, "driver")) {
-		return CAMERA_DRIVER;
+		return PH_DRIVER;
 	} else if(!strcasecmp(propertyName, "firmware")) {
-		return CAMERA_FIRMWARE;
+		return PH_FIRMWARE;
 	} else if(!strcasecmp(propertyName, "sensor")) {
-		return CAMERA_SENSOR;
+		return PH_SENSOR;
 	} else if(!strcasecmp(propertyName, "sensorsize")) {
-		return CAMERA_SENSORSIZE;
+		return PH_SENSORSIZE;
 	} else if(!strcasecmp(propertyName, "imagesize")) {
-		return CAMERA_IMAGESIZE;
+		return PH_IMAGESIZE;
 	} else if(!strcasecmp(propertyName, "maxbitdepth")) {
-		return CAMERA_MAXBITDEPTH;
+		return PH_MAXBITDEPTH;
 	} else if(!strcasecmp(propertyName, "bitdepth")) {
-		return CAMERA_BITDEPTH;
+		return PH_BITDEPTH;
 	} else if(!strcasecmp(propertyName, "gain")) {
-		return CAMERA_GAIN;
+		return PH_GAIN;
 	} else if(!strcasecmp(propertyName, "exposurerange")) {
-		return CAMERA_EXPOSURERANGE;
+		return PH_EXPOSURERANGE;
 	} else if(!strcasecmp(propertyName, "exposure")) {
-		return CAMERA_EXPOSURE;
+		return PH_EXPOSURE;
 	} else if(!strcasecmp(propertyName, "binning")) {
-		return CAMERA_BINNING;
+		return PH_BINNING;
 	} else if(!strcasecmp(propertyName, "offsetrange")) {
-		return CAMERA_OFFSETRANGE;
+		return PH_OFFSETRANGE;
 	} else if(!strcasecmp(propertyName, "offset")) {
-		return CAMERA_OFFSET;
+		return PH_OFFSET;
 	} else {
-		return CAMERA_PROPERTY_INVALID;
+		return PH_PROPERTY_INVALID;
 	}
 }
 
@@ -296,12 +296,12 @@ inline void handleErrorCode(const cri_ErrorCode errorCode) {
 
 /* Camera getters and setters. */
 mxArray* getCameraProperty(const cri_CameraHandle handle, \
-						const CAMERA_PROPERTY property);
+						const PH_PROPERTY property);
 
 mxArray* getCameraProperty(const cri_CameraHandle handle);
 
 void setCameraProperty(const cri_CameraHandle handle, \
-					const CAMERA_PROPERTY property, \
+					const PH_PROPERTY property, \
 					const mxArray* mxarr);
 
 void setCameraProperty(const cri_CameraHandle handle, const mxArray* mxstruct);
